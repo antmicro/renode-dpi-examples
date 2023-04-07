@@ -1,0 +1,48 @@
+name: build-dpi-examples
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      renode_gitrev:
+        description: 'Renode git revision'
+        required: false
+        default: ''
+
+env:
+  RENODE_GITREV: "${{ github.event.inputs.renode_gitrev }}"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { arch: "x86_64", os: "ubuntu-latest"  }
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.config.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ccache
+          key: ${{ runner.os }}-${{ matrix.config.arch }}
+
+      - name: Prepare artifacts
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          set -ex
+          RUNNER_OS=${{ runner.os }}
+          MAKE_BIN="make"
+          BUILD_ARCH=${{ matrix.config.arch }}
+          source .github/scripts/build_verilator.sh
+          source .github/scripts/build_iverilog.sh
+          source .github/scripts/build_artifacts.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: renode-dpi-example-${{ runner.os }}-${{ matrix.config.arch }}-${{ github.run_id }}
+          path: artifacts/*
