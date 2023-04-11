@@ -26,6 +26,8 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - uses: actions/cache@v2
         with:
           path: ccache

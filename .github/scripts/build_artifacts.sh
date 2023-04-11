@@ -9,7 +9,6 @@ if [ -z "$RUNNER_OS" -o -z "$MAKE_BIN" ]; then
     exit -1
 fi
 
-tar -xf cosim_bfm_library.tar
 pushd cosim_bfm_library
 pushd lib_bfm
 make -f Makefile.iverilog cleanup
