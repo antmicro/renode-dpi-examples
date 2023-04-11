@@ -17,7 +17,7 @@ fi
 
 autoconf
 ./configure CC='ccache g++'
-sudo make && make install
+make -j `nproc` && sudo make install
 
 export PATH=`pwd`/bin:$PATH
 export VERILATOR_ROOT="$PWD"
