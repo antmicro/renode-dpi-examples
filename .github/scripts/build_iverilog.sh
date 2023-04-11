@@ -9,5 +9,5 @@ git clone https://github.com/steveicarus/iverilog.git
 pushd iverilog
 sh autoconf.sh
 ./configure
-sudo make && make install
+make -j `nproc` && sudo make install
 popd
