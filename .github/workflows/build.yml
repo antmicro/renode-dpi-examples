@@ -50,6 +50,7 @@ jobs:
 
       - name: Run tests
         run: |
+          LD_LIBRARY_PATH=artifacts/
           renode/renode-test cosim-axi.robot
           cp log.html report.html artifacts/
 
