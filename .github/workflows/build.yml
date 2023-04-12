@@ -54,6 +54,7 @@ jobs:
           cp log.html report.html artifacts/
 
       - uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: renode-dpi-example-${{ runner.os }}-${{ matrix.config.arch }}-${{ github.run_id }}
           path: artifacts/*
