@@ -20,6 +20,7 @@ jobs:
       matrix:
         config:
           - { arch: "x86_64", os: "ubuntu-latest"  }
+          - { arch: "x86_64", os: "windows-latest" }
     defaults:
       run:
         shell: bash
@@ -36,7 +37,21 @@ jobs:
           path: ccache
           key: ${{ runner.os }}-${{ matrix.config.arch }}
 
-      - name: Prepare artifacts
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          update: true
+          install: >-
+            git
+            unzip
+            wget
+            findutils
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+
+      - name: Prepare artifacts for ${{ runner.os }}
         if: ${{ runner.os != 'Windows' }}
         run: |
           set -ex
@@ -46,11 +61,30 @@ jobs:
           source .github/scripts/build_verilator.sh
           source .github/scripts/build_artifacts.sh
           .github/scripts/download_renode.sh
+      
+      - name: Prepare artifacts for Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: msys2 {0}
+        run: |
+          set -ex
+          RUNNER_OS="Windows"
+          MAKE_BIN="mingw32-make.exe"
+          BUILD_ARCH=${{ matrix.config.arch }}
+          source .github/scripts/build_verilator.sh
+          source .github/scripts/build_artifacts.sh
+          .github/scripts/download_renode.sh
 
-      - name: Run tests
+      - name: Run tests for ${{ runner.os }}
+        if: ${{ runner.os != 'Windows' }}
         run: |
           cp artifacts/libcosim_bfm.so renode/
           renode/renode-test -r artifacts/ cosim-axi.robot
+
+      - name: Run tests for Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          cp artifacts/libcosim_bfm.so renode/
+          renode/tests/test.bat -r artifacts/ cosim-axi.robot
 
       - uses: actions/upload-artifact@v2
         if: always()
