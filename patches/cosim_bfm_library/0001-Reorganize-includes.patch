@@ -1,16 +1,59 @@
-From 55ea68b497711c17966c9c65ba45ac0622ba2683 Mon Sep 17 00:00:00 2001
+From f38543e12b5fefa1c762c643e59054b56a0f38ce Mon Sep 17 00:00:00 2001
 From: Jan Malek <jmalek@antmicro.com>
-Date: Mon, 17 Apr 2023 11:52:11 +0200
+Date: Tue, 18 Apr 2023 08:25:24 +0200
 Subject: [PATCH] Reorganize includes
 
+Some type definitions from those headers are required on
+both platforms (pid_t)
 ---
- lib_ipc/src/cosim_ipc.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ lib_ipc/src/cosim_ipc.c     | 25 +++++++++++--------------
+ verilator-build/cosim_ipc.c | 25 +++++++++++--------------
+ 2 files changed, 22 insertions(+), 28 deletions(-)
 
 diff --git a/lib_ipc/src/cosim_ipc.c b/lib_ipc/src/cosim_ipc.c
 index 176d9a8..f366d15 100755
 --- a/lib_ipc/src/cosim_ipc.c
 +++ b/lib_ipc/src/cosim_ipc.c
+@@ -4,24 +4,21 @@
+ //----------------------------------------------------------------------------
+ // cosim_ipc.c
+ //----------------------------------------------------------------------------
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdarg.h>
++#include <signal.h>
++#include <assert.h>
++#include <unistd.h>
++#include <string.h>
++#include <errno.h>
++#include <inttypes.h>
++#include <sys/types.h>
++
+ #if defined(WIN32) // cygwin uses this
+ #	include <windows.h>
+-#	include <stdio.h>
+ #	include <io.h>
+-#	include <assert.h>
+-#	include <signal.h>
+-#	include <inttypes.h>
+ #else
+-#	include <stdio.h>
+-#	include <stdlib.h>
+-#	include <stdarg.h>
+-#	include <signal.h>
+-#	include <assert.h>
+-#	include <unistd.h>
+-#	include <string.h>
+-#	include <errno.h>
+-#	include <inttypes.h>
+-#	include <sys/types.h>
+ #	include <sys/ipc.h>
+ #	include <sys/msg.h>
+ #endif
+diff --git a/verilator-build/cosim_ipc.c b/verilator-build/cosim_ipc.c
+index ed23e35..20bacd3 100755
+--- a/verilator-build/cosim_ipc.c
++++ b/verilator-build/cosim_ipc.c
 @@ -4,24 +4,21 @@
  //----------------------------------------------------------------------------
  // cosim_ipc.c
