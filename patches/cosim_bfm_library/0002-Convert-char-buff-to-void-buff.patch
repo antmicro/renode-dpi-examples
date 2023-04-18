@@ -1,0 +1,27 @@
+From fdf97520c75355042540260d843265a54582e18e Mon Sep 17 00:00:00 2001
+From: Jan Malek <jmalek@antmicro.com>
+Date: Tue, 18 Apr 2023 10:06:43 +0200
+Subject: [PATCH 2/2] Convert char buff[] to void *buff
+
+WriteFile function expects the buffer to be of type LPCVOID,
+which maps to void*
+---
+ verilator-build/cosim_ipc_win.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/verilator-build/cosim_ipc_win.c b/verilator-build/cosim_ipc_win.c
+index 5b28276..6deda3f 100755
+--- a/verilator-build/cosim_ipc_win.c
++++ b/verilator-build/cosim_ipc_win.c
+@@ -388,7 +388,7 @@ _chn_change_mode(int chan_id, int nbon)
+ // return the num of bytes sent that will be >=0 on successful.
+ // return < 0 on failure.
+ static int 
+-_chn_send (int chan_id, int len, char buf[], int nbon) 
++_chn_send (int chan_id, int len, void *buf, int nbon) 
+ {
+     HANDLE hPipe = (HANDLE)chan_handle[chan_id];
+     DWORD cbBytes = 0;
+-- 
+2.30.2
+
