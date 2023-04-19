@@ -44,7 +44,6 @@ jobs:
           MAKE_BIN="make"
           BUILD_ARCH=${{ matrix.config.arch }}
           source .github/scripts/build_verilator.sh
-          source .github/scripts/build_iverilog.sh
           source .github/scripts/build_artifacts.sh
           .github/scripts/download_renode.sh
 
