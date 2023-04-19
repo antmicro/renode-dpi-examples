@@ -11,9 +11,9 @@ fi
 
 pushd cosim_bfm_library
 pushd lib_bfm
-make -f Makefile.iverilog cleanup
-make -f Makefile.iverilog
-make -f Makefile.iverilog install
+make -f Makefile.lib_bfm cleanup
+make INCLUDES=../../verilator/include/vltstd -f Makefile.lib_bfm
+make -f Makefile.lib_bfm install
 popd
 pushd verilator-build
 verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
