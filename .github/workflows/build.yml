@@ -30,6 +30,7 @@ jobs:
         with:
           submodules: recursive
       - uses: actions/setup-python@v4
+        id: python-setup
         with:
           python-version: '3.9'
       - uses: actions/cache@v2
@@ -70,6 +71,7 @@ jobs:
           RUNNER_OS="Windows"
           MAKE_BIN="mingw32-make.exe"
           BUILD_ARCH=${{ matrix.config.arch }}
+          WINDOWS_PYTHON_PATH=$(cygpath -m '${{ steps.python-setup.outputs.python-path }}')
           source .github/scripts/build_verilator.sh
           source .github/scripts/build_artifacts.sh
           .github/scripts/download_renode.sh

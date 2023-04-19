@@ -27,7 +27,13 @@ make -f Makefile.lib_bfm install
 popd
 pushd verilator-build
 verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
-make -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
+
+if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
+    make PYTHON3="$WINDOWS_PYTHON_PATH" -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
+else
+    make -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
+fi
+
 popd
 popd
 
