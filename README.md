@@ -153,17 +153,7 @@ axi_write_task( tid
 
 ## Build process
 
-### 1) Build and install `iverilog`:
-```
-git clone https://github.com/steveicarus/iverilog.git
-pushd iverilog
-sh autoconf.sh
-./configure
-make -j `nproc` && sudo make install
-popd
-```
-
-### 2) Build and install `verilator`:
+### 1) Build and install `verilator`:
 ```
 sudo apt update
 sudo apt install -y git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 autoconf flex bison perl perl-doc numactl libfl2 libfl-dev verilator help2man
@@ -179,13 +169,13 @@ export VERILATOR_ROOT="$PWD"
 popd
 ```
 
-### 3) Build `cosim-bfm-library` and compile the verilog model
+### 2) Build `cosim-bfm-library` and compile the verilog model
 ```
 pushd cosim_bfm_library
 pushd lib_bfm
-make -f Makefile.iverilog cleanup
-make -f Makefile.iverilog
-make -f Makefile.iverilog install
+make -f Makefile.lib_bfm cleanup
+make INCLUDES=../../verilator/include/vltstd -f Makefile.lib_bfm
+make -f Makefile.lib_bfm install
 popd
 pushd verilator-build
 verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
