@@ -206,3 +206,13 @@ cp `find . -name libcosim_bfm.so` renode/
 ```
 renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` cosim-axi.robot
 ```
+
+## Integration with Questa
+
+Inside the `questa` directory there are two files: a robot test suite (`questa-cosim-axi.robot`) and a makefile.
+
+The makefile will prepare all files from the `verilator-build` directory and start the simulation, by running:
+```
+make all
+```
+
