@@ -4,14 +4,18 @@ Copyright (c) 2023 [Antmicro](https://www.antmicro.com)
 
 Example integration between Renode and a Verilog model using DPI (SystemVerilog Direct Programming Interface) calls.
 
-The provided `cosim-axi.robot` file, which is a RobotFramework test suite, contains a set of tests verifying data exchanged between Renode's memory and a Verilog RAM model, handled by cosim-bfm-library in the form of AXI4 bus transactions.
+There are two RobotFramework test suites in this repository:
+* `verilator/cosim-axi.robot` for testing integration with Verilator
+* `questa/questa-cosim-axi.robot` for testing integration with Questa
+
+Both files contain tests verifying data exchanged between Renode's memory and a Verilog RAM model, handled by cosim-bfm-library in the form of AXI4 bus transactions.
 
 The `Cosim BFM library` is a package to provide HW-SW co-simulation between the HDL (Hardware Description Language) simulator and the host program, where BFM (Bus Functional Model or Bus Functional Module) generates bus transactions by interacting with the host program in C.
 Communication is based on pre-defined packets exchanged between HW/SW sides over an IPC channel.
 
-To run the tests two things have to be present:
-* `libcosim_bfm.so` which is generated from the `cosim_bfm_library` submodule (detailed build instructions are below)
-* `Vcosim_bfm_axi_dpi` which is the compiled verilog model, generated from the `verilator-build` directory in the `cosim_bfm_library` submodule
+Regardless of the chosen test `libcosim_bfm.so` will have to be provided, which is generated from the `cosim_bfm_library` submodule (detailed build instructions are below).
+
+For Verilator integration `Vcosim_bfm_axi_dpi` is required, which is the compiled verilog model, generated from the `verilator-build` directory in the `cosim_bfm_library` submodule.
 
 ## cosim_bfm_library details
 
@@ -159,36 +163,39 @@ sudo apt update
 sudo apt install -y git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 autoconf flex bison perl perl-doc numactl libfl2 libfl-dev help2man
 
 git clone https://github.com/verilator/verilator
-pushd verilator
+cd verilator
 autoconf
 ./configure CC='ccache g++'
 make -j `nproc` && sudo make install
 
 export PATH=`pwd`/bin:$PATH
 export VERILATOR_ROOT="$PWD"
-popd
+cd ..
 ```
 
-### 2) Build `cosim-bfm-library` and compile the verilog model
+### 2) Build `cosim-bfm-library`
 ```
-pushd cosim_bfm_library
-pushd lib_bfm
+cd cosim_bfm_library
+cd lib_bfm
 make -f Makefile.lib_bfm cleanup
 make INCLUDES=../../verilator/include/vltstd -f Makefile.lib_bfm
 make -f Makefile.lib_bfm install
-popd
-pushd verilator-build
+cd ..
+```
+
+### 3) Compile the verilog model
+```
+cd verilator-build
 verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
 make -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
-popd
-popd
+cd ..
 ```
 
 ## Usage
 
-To run the test suite:
+Prerequisites:
 
-### 1) Prepare Renode
+#### 1) Prepare Renode
 ```
 wget --progress=dot:giga https://dl.antmicro.com/projects/renode/builds/custom/renode-1.13.2+20230411git4d56db3f.linux-portable.tar.gz
 mkdir -p renode
@@ -197,22 +204,84 @@ rm renode-1.13.2+20230411git4d56db3f.linux-portable.tar.gz
 pip install -r renode/tests/requirements.txt
 ```
 
-### 2) Copy `libcosim_bfm.so` to the renode directory from the previous step
+#### 2) Copy `libcosim_bfm.so` to the renode directory from the previous step
 ```
 cp `find . -name libcosim_bfm.so` renode/
 ```
 
-### 3) Run with renode-test:
+### Test integration with Verilator:
+
+Run with renode-test:
 ```
-renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` cosim-axi.robot
+renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` verilator/cosim-axi.robot
 ```
 
-## Integration with Questa
+### Test integration with Questa:
 
-Inside the `questa` directory there are two files: a robot test suite (`questa-cosim-axi.robot`) and a makefile.
+The makefile inside the `questa` directory will prepare the simulation based on files from `verilator-build` directory in the `cosim-bfm-library` submodule.
 
-The makefile will prepare all files from the `verilator-build` directory and start the simulation, by running:
+To start Questa execute:
 ```
+cd questa
 make all
 ```
+
+As a result, the IDE will appear:
+|![QuestaIntel simulation](resources/questa.png)|
+|:---:|
+| *QuestaIntel with the simulation loaded* |
+
+This is one side of the connection.
+To create the other one in Renode, execute in a second terminal:
+```
+cd ..
+renode/renode-test questa/questa-cosim-axi.robot
+```
+Renode will open the other side of the connection in the test, and wait for communication through the IPC channel.
+
+This should be logged by Renode:
+```
+renode/renode-test questa/questa-cosim-axi.robot
+Preparing suites
+Started Renode instance on port 9999; pid 62681
+Starting suites
+Running /questa/questa-cosim-axi.robot
++++++ Starting test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket'
+```
+
+Now the simulation has to be started in Questa, to make the time pass and actually do something (like AXI bus transactions).
+To do that execute in the `Transcript` windows in Questa:
+```
+VSIM 1> run -all
+```
+
+This will make the first test from the test suite pass, and again wait on the beginning of the second one:
+```
++++++ Starting test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket'
++++++ Finished test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket' in 11.51 seconds with status OK
++++++ Starting test 'questa-cosim-axi.Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket'
+```
+
+At the same time in Questa the user will be asked if the simulation should be finished:
+|![QuestaIntel finish dialog](resources/questa2.png)|
+|:---:|
+| *QuestaIntel after a test is finished* |
+
+After choosing not to finish the simulation and executing again (in the `Transcript` window):
+```
+VSIM 1> run -all
+
+```
+
+Renode will complete the second test:
+```
++++++ Starting test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket'
++++++ Finished test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket' in 11.51 seconds with status OK
++++++ Starting test 'questa-cosim-axi.Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket'
++++++ Finished test 'questa-cosim-axi.Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket' in 19.87 seconds with status OK
++++++ Starting test 'questa-cosim-axi.Should Run DMA Transaction From Cosimulated Memory to Mapped Memory Using Socket'
+```
+Again, the user will be asked about finishing the simulation.
+
+Rest of the test can be executed in the same way.
 
