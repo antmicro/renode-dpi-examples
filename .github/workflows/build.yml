@@ -50,7 +50,7 @@ jobs:
       - name: Run tests
         run: |
           cp artifacts/libcosim_bfm.so renode/
-          renode/renode-test -r artifacts/ ./verilator/cosim-axi.robot
+          renode/renode-test -r artifacts/ ./verilator-test/cosim-axi.robot
 
       - uses: actions/upload-artifact@v2
         if: always()

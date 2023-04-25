@@ -5,8 +5,8 @@ Copyright (c) 2023 [Antmicro](https://www.antmicro.com)
 Example integration between Renode and a Verilog model using DPI (SystemVerilog Direct Programming Interface) calls.
 
 There are two RobotFramework test suites in this repository:
-* `verilator/cosim-axi.robot` for testing integration with Verilator
-* `questa/questa-cosim-axi.robot` for testing integration with Questa
+* `verilator-test/cosim-axi.robot` for testing integration with Verilator
+* `questa-test/questa-cosim-axi.robot` for testing integration with Questa
 
 Both files contain tests verifying data exchanged between Renode's memory and a Verilog RAM model, handled by cosim-bfm-library in the form of AXI4 bus transactions.
 
@@ -213,16 +213,16 @@ cp `find . -name libcosim_bfm.so` renode/
 
 Run with renode-test:
 ```
-renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` verilator/cosim-axi.robot
+renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` verilator-test/cosim-axi.robot
 ```
 
 ### Test integration with Questa:
 
-The makefile inside the `questa` directory will prepare the simulation based on files from `verilator-build` directory in the `cosim-bfm-library` submodule.
+The makefile inside the `questa-test` directory will prepare the simulation based on files from `verilator-build` directory in the `cosim-bfm-library` submodule.
 
 To start Questa execute:
 ```
-cd questa
+cd questa-test
 make all
 ```
 
@@ -235,17 +235,17 @@ This is one side of the connection.
 To create the other one in Renode, execute in a second terminal:
 ```
 cd ..
-renode/renode-test questa/questa-cosim-axi.robot
+renode/renode-test questa-test/questa-cosim-axi.robot
 ```
 Renode will open the other side of the connection in the test, and wait for communication through the IPC channel.
 
 This should be logged by Renode:
 ```
-renode/renode-test questa/questa-cosim-axi.robot
+renode/renode-test questa-test/questa-cosim-axi.robot
 Preparing suites
 Started Renode instance on port 9999; pid 62681
 Starting suites
-Running /questa/questa-cosim-axi.robot
+Running /questa-test/questa-cosim-axi.robot
 +++++ Starting test 'questa-cosim-axi.Should Read Write Verilated Memory Using Socket'
 ```
 
