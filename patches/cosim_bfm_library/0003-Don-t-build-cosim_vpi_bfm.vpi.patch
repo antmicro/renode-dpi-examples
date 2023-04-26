@@ -1,0 +1,49 @@
+From f3441703402ca2a39b64f0b1902a1da55922c2c1 Mon Sep 17 00:00:00 2001
+From: Jan Malek <jmalek@antmicro.com>
+Date: Wed, 26 Apr 2023 08:11:50 +0200
+Subject: [PATCH] Don't build cosim_vpi_bfm.vpi
+
+---
+ lib_bfm/Makefile.lib_bfm | 19 -------------------
+ 1 file changed, 19 deletions(-)
+
+diff --git a/lib_bfm/Makefile.lib_bfm b/lib_bfm/Makefile.lib_bfm
+index 8fe3730..c99f40f 100644
+--- a/lib_bfm/Makefile.lib_bfm
++++ b/lib_bfm/Makefile.lib_bfm
+@@ -27,10 +27,6 @@ compile_link:
+ 			-Ic -I$(DIR_IPC)/src -I${INCLUDES}\
+ 			$$F -o $(DIR_OBJ)/$$(basename $$F .c).o;\
+ 	done
+-	gcc -shared -o $(LIB_VPI_BFM).vpi\
+-		${DIR_OBJ}/cosim_bfm_vpi.o\
+-		${DIR_OBJ}/cosim_ipc.o\
+-		-L/usr/local/lib
+ 
+ prepare_defines:
+ 	sed -e 's/^#define/`define/'\
+@@ -108,21 +104,6 @@ install_libs:
+ 	        echo "Failed to install $(DIR_INSTALL_LIB)/{$(TARGET_LIB)}.";\
+ 		exit 1;\
+ 	fi
+-	@for F in $(TARGET_VPI_LIBS); do\
+-		if [ ! -f $$F ] ; then \
+-			echo "Not found $$F";\
+-			exit 1;\
+-		fi;\
+-	done
+-	@if [ ! -d ${DIR_INSTALL_LIB} ]; then mkdir -p ${DIR_INSTALL_LIB}; fi
+-	@install $(TARGET_VPI_LIBS) $(DIR_INSTALL_LIB) > /dev/null 2>&1
+-	@if [ $$? -eq 0 ]; then\
+-	        rm -f $(TARGET_VPI_LIBS);\
+-	        echo "Success on installing $(DIR_INSTALL_LIB)/{$(TARGET_VPI_LIBS)}.";\
+-	else\
+-	        echo "Failed to install $(DIR_INSTALL_LIB)/{$(TARGET_VPI_LIB)}.";\
+-		exit 1;\
+-	fi
+ 
+ install_bfms:
+ 	@for F in $(addprefix verilog/,$(TARGET_BFMS)); do\
+-- 
+2.30.2
+
