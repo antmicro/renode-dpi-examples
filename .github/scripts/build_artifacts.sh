@@ -37,7 +37,7 @@ fi
 popd
 popd
 
-cp `find . -name Vcosim_bfm_axi_dpi` $ARTIFACTS_DIR
+cp `find . -name Vcosim_bfm_axi_dpi -o -name Vcosim_bfm_axi_dpi.exe` $ARTIFACTS_DIR
 cp `find . -name libcosim_bfm.so` $ARTIFACTS_DIR
 
 ls -lh $ARTIFACTS_DIR
