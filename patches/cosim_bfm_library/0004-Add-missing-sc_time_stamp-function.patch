@@ -1,0 +1,23 @@
+From 3de5e213f20e3e052f10c45efa63dd47829c0046 Mon Sep 17 00:00:00 2001
+From: Jan Malek <jmalek@antmicro.com>
+Date: Wed, 26 Apr 2023 09:48:04 +0200
+Subject: [PATCH] Add missing sc_time_stamp function
+
+---
+ verilator-build/Vcosim_bfm_axi_dpi__main.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/verilator-build/Vcosim_bfm_axi_dpi__main.cpp b/verilator-build/Vcosim_bfm_axi_dpi__main.cpp
+index 71521fa..9ff978c 100644
+--- a/verilator-build/Vcosim_bfm_axi_dpi__main.cpp
++++ b/verilator-build/Vcosim_bfm_axi_dpi__main.cpp
+@@ -37,3 +37,6 @@ int main(int argc, char** argv, char**) {
+     topp->final();
+     return 0;
+ }
++
++// Legacy function. Required for linking on Windows
++double sc_time_stamp() { return 0; }
+-- 
+2.30.2
+
