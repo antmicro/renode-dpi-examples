@@ -11,7 +11,7 @@ git clone https://github.com/verilator/verilator
 pushd verilator
 
 if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
-    pacman --noconfirm -S --needed autoconf bison flex python3 mingw-w64-x86_64-ccache mingw-w64-x86_64-autotools gperf
+    pacman --noconfirm -S --needed autoconf bison flex python3 python-pip mingw-w64-x86_64-ccache mingw-w64-x86_64-autotools gperf
     # `CPPFLAGS=-I/usr/include` doesn't work
     cp /usr/include/FlexLexer.h include/
     cp ../patches/verilator/svdpi.h include/vltstd/svdpi.h
