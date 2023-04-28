@@ -16,5 +16,3 @@ if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
     mv $(basename "$RENODE_ARCHIVE" .zip) renode
     $WINDOWS_PYTHON_PATH -m pip install -r renode/tests/requirements.txt
 fi
-
-rm $RENODE_ARCHIVE
