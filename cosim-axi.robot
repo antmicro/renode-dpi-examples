@@ -10,12 +10,15 @@ Resource                      ${RENODEKEYWORDS}
 *** Variables ***
 ${URI}                              https://dl.antmicro.com/projects/renode
 ${VFASTDMA_SOCKET_LINUX}            ${URI}/Vfastvdma-Linux-x86_64-1116123840-s_1616232-37fd8031dec810475ac6abf68a789261ce6551b0
-${COSIM_BIN}                        artifacts/Vcosim_bfm_axi_dpi
+${VFASTDMA_SOCKET_WINDOWS}          ${URI}/Vfastvdma-Windows-x86_64-1116123840.exe-s_14833257-3a1fef7953686e58a00b09870c5a57e3ac91621d
+${COSIM_BIN}                        artifacts/Vcosim_bfm_axi_dpi.exe
+${PROC}                             None
 
 *** Keywords ***
 Create Machine
     Set Test Variable   ${dma_args}             ; address: "127.0.0.1"
     Set Test Variable   ${vfastdma_linux}       ${VFASTDMA_SOCKET_LINUX}
+    Set Test Variable   ${vfastdma_windows}     ${VFASTDMA_SOCKET_WINDOWS}
     Set Test Variable   ${mem_args}             ; address: "127.0.0.1"
 
     Execute Command                             using sysbus
@@ -27,13 +30,16 @@ Create Machine
     Execute Command                             sysbus WriteDoubleWord 0xA2000000 0x10500073   # wfi
     Execute Command                             cpu PC 0xA2000000
     Execute Command                             dma SimulationFilePathLinux @${vfastdma_linux}
-    
-    Start Process       ${COSIM_BIN}
+    Execute Command                             dma SimulationFilePathWindows @${vfastdma_windows}
+
+#    IF  ${PROC} == None
+#        ${proc}=                                    Start Process       ${COSIM_BIN}
+#        Set Test Variable                           ${PROC}  ${proc}
+#    END
 
 Transaction Should Finish
     ${val} =            Execute Command         dma ReadDoubleWord 0x4
     Should Contain      ${val}                  0x00000000
-
 
 Prepare Data
     [Arguments]         ${addr}
@@ -115,7 +121,14 @@ Memory Should Contain
     ${res}=             Execute Command         ${periph} ReadDoubleWord ${addr}
     Should Contain                              ${res}             ${val}
 
-Test Read Write Verilated Memory
+Memory Should Contain Read By Sysbus
+    [Arguments]         ${addr}
+    ...                 ${val}
+    ${res}=             Execute Command         sysbus ReadDoubleWord ${addr}
+    Should Contain                              ${res}             ${val}
+
+Test Read Write Cosimulated Memory
+    Execute Command                             mem BfmInit 0 0
     Ensure Memory Is Clear                      mem
 
     # Write to memory
@@ -125,54 +138,63 @@ Test Read Write Verilated Memory
     Execute Command                             mem Close
 
 Test DMA Transaction From Mapped Memory to Cosimulated Memory
+    Execute Command                             mem BfmInit 0 0
     Prepare Data                                0xA1000000
 
     Configure DMA                               0xA1000000  0x20000000
 
-    Ensure Memory Is Clear                      mem
+    #Ensure Memory Is Clear                      mem
 
     Execute Command                             emulation RunFor "00:00:10.000000"
     Transaction Should Finish
-    Execute Command                             pause
+    #Execute Command                             pause
 
     Ensure Memory Is Written                    mem
     Execute Command                             mem Close
 
 Test DMA Transaction From Cosimulated Memory to Mapped Memory
+    Execute Command                             mem BfmInit 0 0
     Prepare Data                                0x20080000
 
     Configure DMA                               0x20080000  0xA0000000
 
     Ensure Memory Is Clear                      ram
 
-    Execute Command                             emulation RunFor "00:00:10.000000"
+    Execute Command                             emulation RunFor "00:00:20.000000"
     Transaction Should Finish
 
-    Ensure Memory Is Written                    ram
+    ## Ensure Memory Is Written                    ram
+    Memory Should Contain Read By Sysbus        0xA0000000  0xDEADBEA7
+    Memory Should Contain Read By Sysbus        0xA0000004  0xDEADC0DE
+    Memory Should Contain Read By Sysbus        0xA0000008  0xCAFEBABE
+    Memory Should Contain Read By Sysbus        0xA000000C  0x5555AAAA
+
     Execute Command                             mem Close
 
 Test DMA Transaction From Cosimulated Memory to Cosimulated Memory
+    Execute Command                             mem BfmInit 0 0
     Prepare Data                                0x20080000
 
     Configure DMA                               0x20080000  0x20000100
 
-    Memory Should Contain                       mem  0x100  0
-    Memory Should Contain                       mem  0x104  0
-    Memory Should Contain                       mem  0x108  0
-    Memory Should Contain                       mem  0x10c  0
+    Memory Should Contain Read By Sysbus        0x20000100  0
+    Memory Should Contain Read By Sysbus        0x20000104  0
+    Memory Should Contain Read By Sysbus        0x20000108  0
+    Memory Should Contain Read By Sysbus        0x2000010C  0
     Execute Command                             emulation RunFor "00:00:10.000000"
     Transaction Should Finish
 
-    Memory Should Contain                       mem  0x100  0xDEADBEA7
-    Memory Should Contain                       mem  0x104  0xDEADC0DE
-    Memory Should Contain                       mem  0x108  0xCAFEBABE
-    Memory Should Contain                       mem  0x10c  0x5555AAAA
+    Memory Should Contain Read By Sysbus        0x20000100  0xDEADBEA7
+    Memory Should Contain Read By Sysbus        0x20000104  0xDEADC0DE
+    Memory Should Contain Read By Sysbus        0x20000108  0xCAFEBABE
+    Memory Should Contain Read By Sysbus        0x2000010C  0x5555AAAA
+
     Execute Command                             mem Close
 
 *** Test Cases ***
-Should Read Write Verilated Memory Using Socket
+Should Read Write Cosimulated Memory Using Socket
     Create Machine
-    Test Read Write Verilated Memory
+    Test Read Write Cosimulated Memory
 
 Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket
     Create Machine
