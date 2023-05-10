@@ -13,7 +13,6 @@ pushd cosim_bfm_library
 
 if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
     # Adds <sys/types.h> to Windows includes
-    git apply ../patches/cosim_bfm_library/*.patch
     # cosim_bfm_library expects headers in /usr/local/include/iverilog and libs in /usr/local/lib.
     # MSYS2 installer places those files in the following locations:
     export CPATH="/mingw64/include/iverilog"
