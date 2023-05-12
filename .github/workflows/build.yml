@@ -87,6 +87,7 @@ jobs:
         shell: cmd
         run: |
           copy .\artifacts\libcosim_bfm.so .\renode\bin\
+          renode/tests/test.bat -r artifacts/ cosim-axi.robot
 
       - uses: actions/upload-artifact@v2
         if: always()
