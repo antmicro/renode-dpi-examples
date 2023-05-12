@@ -11,7 +11,7 @@ Resource                      ${RENODEKEYWORDS}
 ${URI}                              https://dl.antmicro.com/projects/renode
 ${VFASTDMA_SOCKET_LINUX}            ${URI}/Vfastvdma-Linux-x86_64-1116123840-s_1616232-37fd8031dec810475ac6abf68a789261ce6551b0
 ${VFASTDMA_SOCKET_WINDOWS}          ${URI}/Vfastvdma-Windows-x86_64-1116123840.exe-s_14833257-3a1fef7953686e58a00b09870c5a57e3ac91621d
-${COSIM_BIN}                        artifacts/Vcosim_bfm_axi_dpi.exe
+${COSIM_BIN}                        ../artifacts/Vcosim_bfm_axi_dpi.exe
 
 *** Keywords ***
 Create Machine

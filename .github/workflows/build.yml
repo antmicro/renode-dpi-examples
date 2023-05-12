@@ -80,7 +80,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: |
           cp artifacts/libcosim_bfm.so renode/
-          renode/renode-test -r artifacts/ --variable=COSIM_BIN:artifacts/Vcosim_bfm_axi_dpi cosim-axi.robot
+          renode/renode-test -r artifacts/ --variable=COSIM_BIN:../artifacts/Vcosim_bfm_axi_dpi cosim-axi.robot
 
       - name: Run tests for Windows
         if: ${{ runner.os == 'Windows' }}
