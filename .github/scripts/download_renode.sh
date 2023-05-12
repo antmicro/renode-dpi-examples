@@ -10,7 +10,7 @@ if [ "$RUNNER_OS" = "Linux" ]; then  # Ubuntu
 fi
 
 if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
-    RENODE_ARCHIVE=renode-1.13.3+20230511gitf5c1564c.zip
+    RENODE_ARCHIVE=renode_1.13.3+20230511gitf5c1564c.zip
     wget --progress=dot:giga "https://dl.antmicro.com/projects/renode/custom_builds/$RENODE_ARCHIVE"
     unzip "$RENODE_ARCHIVE"
     mv $(basename "$RENODE_ARCHIVE" .zip) renode
