@@ -89,7 +89,8 @@ jobs:
           RUNNER_OS="Windows"
           export WINDOWS_PYTHON_PATH=$(cygpath -m '${{ steps.python-setup.outputs.python-path }}')
           cp ./artifacts/libcosim_bfm.so ./renode/bin/
-          renode/tests/run_tests.py -r artifacts/ cosim-axi.robot
+          sed -i '1d' renode/tests/run_tests.py
+          $WINDOWS_PYTHON_PATH renode/tests/run_tests.py -r artifacts/ --css-file robot.css --exclude "skip_windows" --robot-framework-remote-server-full-directory ../bin cosim-axi.robot
 
       - uses: actions/upload-artifact@v2
         if: always()
