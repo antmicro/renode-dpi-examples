@@ -186,25 +186,25 @@ Test DMA Transaction From Cosimulated Memory to Cosimulated Memory
 
 *** Test Cases ***
 Should Read Write Cosimulated Memory Using Socket
-    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
+    ${pid}=  Start Process                               ${COSIM_BIN}
     Create Machine
     Test Read Write Cosimulated Memory
     Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket
-    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
+    ${pid}=  Start Process                               ${COSIM_BIN}
     Create Machine
     Test DMA Transaction From Mapped Memory to Cosimulated Memory
     Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Cosimulated Memory to Mapped Memory Using Socket
-    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
+    ${pid}=  Start Process                               ${COSIM_BIN}
     Create Machine
     Test DMA Transaction From Cosimulated Memory To Mapped Memory
     Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Cosimulated Memory to Cosimulated Memory Using Socket
-    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
+    ${pid}=  Start Process                               ${COSIM_BIN}
     Create Machine
     Test DMA Transaction From Cosimulated Memory To Cosimulated Memory
     Terminate Process                                    ${pid}
