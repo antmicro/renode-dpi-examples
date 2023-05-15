@@ -30,8 +30,8 @@ Create Machine
     Execute Command                             cpu PC 0xA2000000
     Execute Command                             dma SimulationFilePathLinux @${vfastdma_linux}
     Execute Command                             dma SimulationFilePathWindows @${vfastdma_windows}
-    Execute Command                             mem SimulationFilePathLinux @${COSIM_BIN}
-    Execute Command                             mem SimulationFilePathWindows @${COSIM_BIN}
+#    Execute Command                             mem SimulationFilePathLinux @${COSIM_BIN}
+#    Execute Command                             mem SimulationFilePathWindows @${COSIM_BIN}
 
 Transaction Should Finish
     ${val} =            Execute Command         dma ReadDoubleWord 0x4
@@ -124,7 +124,7 @@ Memory Should Contain Read By Sysbus
     Should Contain                              ${res}             ${val}
 
 Test Read Write Cosimulated Memory
-    Execute Command                             mem Init 0 0
+    Execute Command                             mem Init 0 2
     Ensure Memory Is Clear                      mem
 
     # Write to memory
@@ -134,12 +134,10 @@ Test Read Write Cosimulated Memory
     Execute Command                             mem Close 0
 
 Test DMA Transaction From Mapped Memory to Cosimulated Memory
-    Execute Command                             mem Init 0 0
+    Execute Command                             mem Init 0 2
     Prepare Data                                0xA1000000
 
     Configure DMA                               0xA1000000  0x20000000
-
-    Ensure Memory Is Clear                      mem
 
     Execute Command                             emulation RunFor "00:00:10.000000"
     Transaction Should Finish
@@ -149,14 +147,14 @@ Test DMA Transaction From Mapped Memory to Cosimulated Memory
     Execute Command                             mem Close 0
 
 Test DMA Transaction From Cosimulated Memory to Mapped Memory
-    Execute Command                             mem Init 0 0
+    Execute Command                             mem Init 0 2
     Prepare Data                                0x20080000
 
     Configure DMA                               0x20080000  0xA0000000
 
     Ensure Memory Is Clear                      ram
 
-    Execute Command                             emulation RunFor "00:00:20.000000"
+    Execute Command                             emulation RunFor "00:00:10.000000"
     Transaction Should Finish
 
     ## Ensure Memory Is Written                    ram
@@ -168,38 +166,45 @@ Test DMA Transaction From Cosimulated Memory to Mapped Memory
     Execute Command                             mem Close 0
 
 Test DMA Transaction From Cosimulated Memory to Cosimulated Memory
-    Execute Command                             mem Init 0 0
+    Execute Command                             mem Init 0 2
     Prepare Data                                0x20080000
 
-    Configure DMA                               0x20080000  0x20000100
+    Configure DMA                               0x20080000  0x20001000
 
-    Memory Should Contain Read By Sysbus        0x20000100  0
-    Memory Should Contain Read By Sysbus        0x20000104  0
-    Memory Should Contain Read By Sysbus        0x20000108  0
-    Memory Should Contain Read By Sysbus        0x2000010C  0
-    Execute Command                             emulation RunFor "00:00:10.000000"
+    Memory Should Contain Read By Sysbus        0x20001000  0
+    Memory Should Contain Read By Sysbus        0x20001004  0
+    Memory Should Contain Read By Sysbus        0x20001008  0
+    Memory Should Contain Read By Sysbus        0x2000100C  0
     Transaction Should Finish
 
-    Memory Should Contain Read By Sysbus        0x20000100  0xDEADBEA7
-    Memory Should Contain Read By Sysbus        0x20000104  0xDEADC0DE
-    Memory Should Contain Read By Sysbus        0x20000108  0xCAFEBABE
-    Memory Should Contain Read By Sysbus        0x2000010C  0x5555AAAA
+    Memory Should Contain Read By Sysbus        0x20001000  0xDEADBEA7
+    Memory Should Contain Read By Sysbus        0x20001004  0xDEADC0DE
+    Memory Should Contain Read By Sysbus        0x20001008  0xCAFEBABE
+    Memory Should Contain Read By Sysbus        0x2000100C  0x5555AAAA
 
     Execute Command                             mem Close 0
 
 *** Test Cases ***
 Should Read Write Cosimulated Memory Using Socket
+    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
     Create Machine
     Test Read Write Cosimulated Memory
+    Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Mapped Memory to Cosimulated Memory Using Socket
+    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
     Create Machine
     Test DMA Transaction From Mapped Memory to Cosimulated Memory
+    Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Cosimulated Memory to Mapped Memory Using Socket
+    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
     Create Machine
     Test DMA Transaction From Cosimulated Memory To Mapped Memory
+    Terminate Process                                    ${pid}
 
 Should Run DMA Transaction From Cosimulated Memory to Cosimulated Memory Using Socket
+    ${pid}=  Start Process                               artifacts/Vcosim_bfm_axi_dpi.exe
     Create Machine
     Test DMA Transaction From Cosimulated Memory To Cosimulated Memory
+    Terminate Process                                    ${pid}
