@@ -86,7 +86,6 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         shell: cmd
         run: |
-          copy .\lib .\artifacts
           copy .\artifacts\libcosim_bfm.so .\renode\bin\
           renode/tests/test.bat -r artifacts/ cosim-axi.robot
 
