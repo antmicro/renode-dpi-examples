@@ -36,6 +36,16 @@ fi
 popd
 popd
 
+echo "===== Vcosim dependancy list begin: =====\n"
+ldd `find . -name Vcosim_bfm_axi_dpi`
+
+cp /usr/bin/msys-2.0.dll $ARTIFACTS_DIR
+cp /usr/bin/msys-gcc_s-seh-1.dll $ARTIFACTS_DIR
+cp /usr/bin/msys-stdc++-6.dll $ARTIFACTS_DIR
+
+ls -l $ARTIFACTS_DIR
+echo "===== Vcosim dependancy list end. =====\n"
+
 cp `find . -name Vcosim_bfm_axi_dpi -o -name Vcosim_bfm_axi_dpi.exe` $ARTIFACTS_DIR
 cp `find . -name libcosim_bfm.so` $ARTIFACTS_DIR
 

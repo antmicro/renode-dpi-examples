@@ -10,6 +10,8 @@ fi
 git clone https://github.com/verilator/verilator
 pushd verilator
 
+git checkout 46f719ceaaa658a2c51cf974b548b635fc276593
+
 if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
     pacman --noconfirm -S --needed autoconf bison flex mingw-w64-x86_64-python mingw-w64-x86_64-python-pip mingw-w64-x86_64-ccache mingw-w64-x86_64-autotools gperf
     # `CPPFLAGS=-I/usr/include` doesn't work
