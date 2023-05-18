@@ -36,17 +36,25 @@ fi
 popd
 popd
 
-echo "===== Vcosim dependancy list begin: =====\n"
-ldd `find . -name Vcosim_bfm_axi_dpi`
+if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
+    echo "===== Vcosim dependancy list begin: =====\n"
+    ls -l /usr/bin
+    
+#    cp /usr/bin/msys-2.0.dll $ARTIFACTS_DIR
+#    cp /usr/bin/msys-gcc_s-seh-1.dll $ARTIFACTS_DIR
+#    cp /usr/bin/msys-stdc++-6.dll $ARTIFACTS_DIR
 
-cp /usr/bin/msys-2.0.dll $ARTIFACTS_DIR
-cp /usr/bin/msys-gcc_s-seh-1.dll $ARTIFACTS_DIR
-cp /usr/bin/msys-stdc++-6.dll $ARTIFACTS_DIR
-
-ls -l $ARTIFACTS_DIR
-echo "===== Vcosim dependancy list end. =====\n"
+  	cp /mingw64/bin/libgcc_s_seh-1.dll $ARTIFACTS_DIR
+	cp /mingw64/bin/libwinpthread-1.dll $ARTIFACTS_DIR
+	cp /mingw64/bin/libstdc++-6.dll $ARTIFACTS_DIR
+    
+    ls -l $ARTIFACTS_DIR
+    echo "===== Vcosim dependancy list end. =====\n"
+fi 
 
 cp `find . -name Vcosim_bfm_axi_dpi -o -name Vcosim_bfm_axi_dpi.exe` $ARTIFACTS_DIR
 cp `find . -name libcosim_bfm.so` $ARTIFACTS_DIR
+
+ldd $ARTIFACTS_DIR/*
 
 ls -lh $ARTIFACTS_DIR
