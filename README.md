@@ -151,7 +151,7 @@ axi_write_task( tid
 ```
 
 
-## Build process
+## Build process (Linux)
 
 ### 1) Build and install `verilator`:
 ```
@@ -186,14 +186,16 @@ popd
 
 ## Usage
 
-To run the test suite:
+The tests can be ran on Linux or Windows.
+
+### To run the test suite on Linux:
 
 ### 1) Prepare Renode
 ```
-wget --progress=dot:giga https://dl.antmicro.com/projects/renode/builds/custom/renode-1.13.2+20230411git4d56db3f.linux-portable.tar.gz
+wget --progress=dot:giga https://dl.antmicro.com/projects/renode/custom_builds/renode-1.13.3+20230511gitf5c1564c.linux-portable.tar.gz
 mkdir -p renode
-tar xf renode-1.13.2+20230411git4d56db3f.linux-portable.tar.gz --strip-components 1 -C renode
-rm renode-1.13.2+20230411git4d56db3f.linux-portable.tar.gz
+tar xf 1.13.3+20230511gitf5c1564c.linux-portable.tar.gz --strip-components 1 -C renode
+rm 1.13.3+20230511gitf5c1564c.linux-portable.tar.gz
 pip install -r renode/tests/requirements.txt
 ```
 
@@ -206,3 +208,38 @@ cp `find . -name libcosim_bfm.so` renode/
 ```
 renode/renode-test --variable=COSIM_BIN:`find . -name Vcosim_bfm_axi_dpi` cosim-axi.robot
 ```
+
+### To run the test suite on Windows:
+
+To speed up the process without having to build everything manually artifacts from the CI can be used.
+The .zip archive will contain libcosim_bfm.so and .dll files listed below.
+
+Note: Python must be installed to be able to prepare modules required by Renode.
+Python Releases for Windows can be found here: https://www.python.org/downloads/windows/
+
+### 1) Prepare Renode
+
+Download Renode from: https://dl.antmicro.com/projects/renode/custom_builds/renode_1.13.3+20230511gitf5c1564c.zip
+
+Extract the archive to the root of the repository and rename the resulting directory to 'renode'.
+
+Install required Python modules, by executing in CMD:
+```
+py -m pip install -r renode\tests\requirements.txt
+```
+
+### 2) Copy `libcosim_bfm.so` to the renode/bin directory from the previous step
+
+### 3) Copy .dll files to the artifacts directory (next to Vcosim_bfm_axi_dpi.exe):
+```
+libgcc_s_seh-1.dll
+libstdc++-6.dll
+libwinpthread-1.dll
+```
+
+### 4) Run with renode-test:
+Execute in CMD:
+```
+renode\tests\test.bat cosim-axi.robot
+```
+
