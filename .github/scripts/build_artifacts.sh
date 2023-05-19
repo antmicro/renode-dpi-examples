@@ -22,7 +22,17 @@ make INCLUDES=../../verilator/include/vltstd -f Makefile.lib_bfm
 make -f Makefile.lib_bfm install
 popd
 pushd verilator-build
-verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
+verilator \
+  -I../include/verilog --timing --cc \
+  -Wno-WIDTH -Wno-CASEINCOMPLETE \
+  ../lib_bfm/verilog/cosim_bfm_axi_dpi.sv \
+  ../verification/test_axi_dpi_vpi/hw/design/verilog/top.v \
+  ../verification/test_axi_dpi_vpi/hw/design/verilog/mem_axi_beh.v \
+  -exe \
+  Vcosim_bfm_axi_dpi__main.cpp \
+  ../lib_bfm/c/cosim_bfm_api.c \
+  ../lib_bfm/c/cosim_bfm_dpi.c \
+  ../lib_ipc/src/cosim_ipc.c
 
 if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
     make PYTHON3="$WINDOWS_PYTHON_PATH" -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
