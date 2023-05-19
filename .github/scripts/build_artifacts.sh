@@ -33,6 +33,12 @@ fi
 popd
 popd
 
+if [ "$RUNNER_OS" = "Windows" ]; then  # MSYS2
+   cp /mingw64/bin/libgcc_s_seh-1.dll $ARTIFACTS_DIR
+   cp /mingw64/bin/libwinpthread-1.dll $ARTIFACTS_DIR
+   cp /mingw64/bin/libstdc++-6.dll $ARTIFACTS_DIR
+fi 
+
 cp `find . -name Vcosim_bfm_axi_dpi -o -name Vcosim_bfm_axi_dpi.exe` $ARTIFACTS_DIR
 cp `find . -name libcosim_bfm.so` $ARTIFACTS_DIR
 
