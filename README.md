@@ -181,7 +181,17 @@ make INCLUDES=../../verilator/include/vltstd -f Makefile.lib_bfm
 make -f Makefile.lib_bfm install
 popd
 pushd verilator-build
-verilator --timing --cc -Wno-WIDTH cosim_bfm_axi_dpi.sv top.v mem_axi_beh.v -exe Vcosim_bfm_axi_dpi__main.cpp cosim_bfm_api.c cosim_bfm_dpi.c cosim_ipc.c
+verilator \
+  -I../include/verilog --timing --cc \
+  -Wno-WIDTH -Wno-CASEINCOMPLETE \
+  ../lib_bfm/verilog/cosim_bfm_axi_dpi.sv \
+  ../verification/test_axi_dpi_vpi/hw/design/verilog/top.v \
+  ../verification/test_axi_dpi_vpi/hw/design/verilog/mem_axi_beh.v \
+  -exe \
+  Vcosim_bfm_axi_dpi__main.cpp \
+  ../lib_bfm/c/cosim_bfm_api.c \
+  ../lib_bfm/c/cosim_bfm_dpi.c \
+  ../lib_ipc/src/cosim_ipc.c
 make -C obj_dir/ -f Vcosim_bfm_axi_dpi.mk
 popd
 popd
@@ -197,8 +207,8 @@ The tests can be ran on Linux or Windows.
 ```
 wget --progress=dot:giga https://dl.antmicro.com/projects/renode/custom_builds/renode-1.13.3+20230511gitf5c1564c.linux-portable.tar.gz
 mkdir -p renode
-tar xf 1.13.3+20230511gitf5c1564c.linux-portable.tar.gz --strip-components 1 -C renode
-rm 1.13.3+20230511gitf5c1564c.linux-portable.tar.gz
+tar xf renode-1.13.3+20230511gitf5c1564c.linux-portable.tar.gz --strip-components 1 -C renode
+rm renode-1.13.3+20230511gitf5c1564c.linux-portable.tar.gz
 pip install -r renode/tests/requirements.txt
 ```
 
