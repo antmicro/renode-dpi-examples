@@ -1,3 +1,0 @@
-[submodule "cosim_bfm_library"]
-	path = cosim_bfm_library
-	url = git@github.com:antmicro/cosim_bfm_library.git
