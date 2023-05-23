@@ -160,6 +160,9 @@ sudo apt install -y git cmake ninja-build gperf ccache dfu-util device-tree-comp
 
 git clone https://github.com/verilator/verilator
 pushd verilator
+
+git checkout 46f719ceaaa658a2c51cf974b548b635fc276593
+
 autoconf
 ./configure CC='ccache g++'
 make -j `nproc` && sudo make install
