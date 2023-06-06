@@ -1,0 +1,140 @@
+name: dpi-examples
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build Verilator and example
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-20.04"
+            renode: "https://builds.renode.io/renode-latest.linux-portable-dotnet.tar.gz"
+            cc: gcc-10
+            cxx: g++-10
+          - os: "windows-latest"
+            renode: "https://builds.renode.io/renode-latest.zip"
+            cc: gcc
+            cxx: g++
+    runs-on: ${{ matrix.config.os }}
+    env:
+      VERILATOR_GIT_REF: v5.010
+      RUNNER_OS: ${{ matrix.config.os }}
+      SAMPLE_NAME: axi_ram
+      SAMPLE_DIR: samples/axi_ram
+      ARTIFACTS_PREFIX: renode-dpi-
+      CC: ${{ matrix.config.cc }}
+      CXX: ${{ matrix.config.cxx }}
+
+    steps: 
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v4
+        id: python-setup
+        with:
+          python-version: '3.11'
+
+      - uses: actions/cache@v2
+        with:
+          path: ccache
+          key: ${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          update: true
+          install: >-
+            git
+            unzip
+            wget
+            findutils
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make 
+      
+
+      - name: Build Verilator on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: .github/scripts/build-verilator.sh
+
+      - name: Build Verilator on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: msys2 {0}
+        run: .github/scripts/build-verilator.sh
+
+
+      - name: Download Renode
+        shell: bash
+        run: curl -sSLO ${{ matrix.config.renode }}
+
+      - name: Unpack Renode for Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+            mkdir renode
+            tar xf renode*.tar.gz --strip-components 1 -C renode
+
+      - name: Unpack Renode for Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: bash
+        run: |
+            unzip renode*.zip
+            rm renode*.zip
+            mv renode_* renode
+
+      - name: Install Robot framework dependencies
+        shell: bash
+        run: python3 -m pip install -r renode/tests/requirements.txt
+  
+
+      - name: Prepare sample and artifacts directory
+        run: |
+          mkdir ${{ env.SAMPLE_DIR }}/build
+          mkdir artifacts
+
+      - name: Build sample on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          cd ${{ env.SAMPLE_DIR }}/build
+          cmake .. -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator
+          make
+          cp verilated ../../../artifacts/${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-verilated
+        
+      - name: Build sample on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          cd ${{ env.SAMPLE_DIR }}\build
+          cmake.exe .. -G "MinGW Makefiles" -DUSER_RENODE_DIR="..\..\..\renode" -DUSER_VERILATOR_DIR="..\..\..\verilator"
+          mingw32-make.exe
+          cp verilated.exe ..\..\..\artifacts\${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-verilated.exe
+
+
+      - name: Run tests on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: >-
+          renode/renode-test
+          ${{ env.SAMPLE_DIR}}/tests.robot
+          --include verilator
+
+      - name: Run tests on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: >-
+          renode\bin\renode-test.bat
+          ${{ env.SAMPLE_DIR}}\tests.robot
+          --include verilator
+          --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
+
+      - name: Copy tests output
+        shell: bash
+        run: |
+          mv log.html artifacts/${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-log.html
+          mv report.html artifacts/${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-report.html
+          mv robot_output.xml artifacts/${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-robot_output.xml
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-${{ runner.os }}-${{ runner.arch }}
+          path: artifacts/*
