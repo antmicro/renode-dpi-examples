@@ -1,3 +1,13 @@
 renode/
 verilator/
 build/
+
+# ignore test outputs
+snapshots/
+logs/
+log.html
+report.html
+robot_output.xml
+results-*.xml
+sim.vcd
+transcript
