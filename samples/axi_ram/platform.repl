@@ -1,0 +1,5 @@
+mem: Verilated.BaseDoubleWordVerilatedPeripheral @ sysbus <0x20000000, +0x100000>
+    frequency: 10
+    limitBuffer: 10000000
+    timeout: 10000
+    address: "127.0.0.1"

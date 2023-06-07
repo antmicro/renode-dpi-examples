@@ -7,6 +7,8 @@ Test Teardown                       Run Keywords
 ${URI}                              https://dl.antmicro.com/projects/renode
 ${VFASTDMA_SOCKET_LINUX}            ${URI}/Vfastvdma-Linux-x86_64-1116123840-s_1616232-37fd8031dec810475ac6abf68a789261ce6551b0
 ${VFASTDMA_SOCKET_WINDOWS}          ${URI}/Vfastvdma-Windows-x86_64-1116123840.exe-s_14833257-3a1fef7953686e58a00b09870c5a57e3ac91621d
+
+${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${VERILATED_BINARY}                 ${CURDIR}/build/verilated
 ${QUESTA_COMMAND}                   vsim
 ${QUESTA_WORK_LIBRARY}              ${CURDIR}/build/work_questa
@@ -16,14 +18,8 @@ ${QUESTA_ARGUMENTS}                 ${EMPTY}
 
 *** Keywords ***
 Create Machine
-    Execute Command                 using sysbus
-    Execute Command                 mach create
-    Execute Command                 machine LoadPlatformDescriptionFromString 'cpu: CPU.RiscV32 @ sysbus { cpuType: "rv32imaf"; timeProvider: empty }'
+    Execute Command                 include @${DPI_PLATFORM}
     Execute Command                 machine LoadPlatformDescriptionFromString 'dma: Verilated.BaseDoubleWordVerilatedPeripheral @ sysbus <0x10000000, +0x100> { frequency: 100000; limitBuffer: 100000; timeout: 10000; address: "127.0.0.1" }'
-    Execute Command                 machine LoadPlatformDescriptionFromString 'mem: Verilated.BaseDoubleWordVerilatedPeripheral @ sysbus <0x20000000, +0x100000> { frequency: 10; limitBuffer: 10000000; timeout: 10000; address: "127.0.0.1" }'
-    Execute Command                 machine LoadPlatformDescriptionFromString 'ram: Memory.MappedMemory @ sysbus 0xA0000000 { size: 0x06400000 }'
-    Execute Command                 sysbus WriteDoubleWord 0xA2000000 0x10500073  # wfi
-    Execute Command                 cpu PC 0xA2000000
     Execute Command                 dma SimulationFilePathLinux @${VFASTDMA_SOCKET_LINUX}
     Execute Command                 dma SimulationFilePathWindows @${VFASTDMA_SOCKET_WINDOWS}
 
