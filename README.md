@@ -99,5 +99,48 @@ renode/renode-test samples/axi_ram/tests.robot
 renode\bin\renode-test.bat samples\axi_ram\tests.robot --variable=VERILATED_BINARY:samples\axi_ram\build\verilated.exe
 ```
 
+### Running a sample manually
+Instead of run an automatic test using the Robot Framework, you can manually run Renode and an external simulator.  
+
+#### Starting Renode
+To run Renode with the [RESC script](https://renode.readthedocs.io/en/latest/basic/monitor-syntax.html#renode-script-syntax), which creates a platform, just execute one of the following commands in the repository root:
+* `renode/renode samples/axi_ram/platform.resc` on Linux 
+* `renode\bin\Renode.exe samples\axi_ram\platform.resc` on Windows
+
+Renode communicates with a simulator over sockets and you will need communication parameters.
+Run the `mem ConnectionParameters` command in [the Monitor](https://renode.readthedocs.io/en/latest/basic/monitor-syntax.html).
+
+The output of the command consists of:
+* the receiver port (later referenced to as `<ReceiverPort>`),
+* the sender port (later referenced to as `<SenderPort>`),
+* the IP address (later referenced to as `<Address>`).  
+
+You will need to substitute placeholders in the following commands which use these parameters.
+  
+#### Connecting to a simulator
+                                         
+You can use one of the following command to start the simulator and pass connection parameters:
+* `samples/axi_ram/build/verilated <ReceiverPort> <SenderPort> <Address>` for Verilator on Linux
+* `samples\axi_ram\build\verilated.exe <ReceiverPort> <SenderPort> <Address>` for Verilator on Windows
+* `vsim design_optimized -work samples/axi_ram/build/work_questa -do "run -all" -GReceiverPort=<ReceiverPort> -GSenderPort=<SenderPort> -GAddress=\"<Address>\"` for Questa on Linux
+* ``vsim design_optimized -work samples\axi_ram\build\work_questa -do "run -all" -GReceiverPort=<ReceiverPort> -GSenderPort=<SenderPort> -GAddress=\`"<Address>\`" -ldflags -lws2_32`` in Powershell for Questa on Windows
+
+After starting the simulator establish a connection by executing the `mem Connect` command in the Renode Monitor.
+No output indicates that Renode and the simulator are successfully connected.
+
+> **Note**  
+> Questa may not be responsive during simulation.  
+> Instead of passing the `-do "run -all"` argument to Questa you may execute the `run -all` command in the transcript window.
+
+#### Interacting with the design
+You can simply try the prepared setup by running the following commands in the Renode.
+```
+mem WriteDoubleWord 0x10 0x12345678
+mem ReadDoubleWord 0x10
+```
+
+You can close the simulation by calling the `quit` command in the Renode Monitor.
+It will also finish the HDL simulation.
+
 ## Samples list
 * [RAM as an AXI4 subordinate](/samples/axi_ram/axi_ram.v)
