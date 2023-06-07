@@ -24,7 +24,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Renode.
     if (!connection.receive(message)) $finish;
-    bus.handle_request(connection, message);
+    else bus.handle_request(connection, message);
   end
 
   always #(ClockPeriod / 2) clk = ~clk;
