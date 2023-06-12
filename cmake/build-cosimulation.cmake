@@ -94,7 +94,11 @@ if(NOT VIL_DIR)
 endif()
 
 # Prepare list of Renode DPI Integration files
-set(VERILOG_LIBRARY ${VIL_DIR}/hdl)
+set(RENODE_HDL_LIBRARY ${VIL_DIR}/hdl)
+file(GLOB RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/buses/*.sv)
+list(PREPEND RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/renode.sv)
+list(PREPEND RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/renode_pkg.sv)
+
 file(GLOB_RECURSE RENODE_SOURCES ${VIL_DIR}/libs/socket-cpp/*.cpp)
 list(APPEND RENODE_SOURCES ${VIL_DIR}/src/communication/socket_channel.cpp)
 list(APPEND RENODE_SOURCES ${VIL_DIR}/src/renode_dpi.cpp)
@@ -104,6 +108,7 @@ if(NOT SIM_TOP OR NOT SIM_TOP_FILE)
 endif()
 set(ALL_SIM_FILES ${SIM_TOP_FILE})
 list(APPEND ALL_SIM_FILES ${SIM_FILES})
+list(APPEND ALL_SIM_FILES ${RENODE_HDL_SOURCES})
 foreach(SIM_FILE ${ALL_SIM_FILES})
   get_filename_component(SIM_FILE ${SIM_FILE} ABSOLUTE BASE_DIR)
   list(APPEND FINAL_SIM_FILES ${SIM_FILE})
@@ -115,7 +120,7 @@ endforeach()
 set(USER_VERILATOR_ARGS ${VERILATOR_ARGS} CACHE STRING "Extra arguments/switches for Verilating")
 separate_arguments(USER_VERILATOR_ARGS)
 set(FINAL_VERILATOR_ARGS ${USER_VERILATOR_ARGS})
-list(APPEND FINAL_VERILATOR_ARGS "-I${VERILOG_LIBRARY}")
+list(APPEND FINAL_VERILATOR_ARGS "-I${RENODE_HDL_LIBRARY}")
 set(FINAL_LINK_ARGS ${PROJECT_LINK_ARGS})
 set(FINAL_COMP_ARGS ${PROJECT_COMP_ARGS})
 
@@ -138,7 +143,7 @@ else()
   target_include_directories(verilated PRIVATE ${VIL_DIR})
   target_compile_options(verilated PRIVATE ${FINAL_COMP_ARGS})
   target_link_libraries(verilated PRIVATE ${FINAL_LINK_ARGS})
-  verilate(verilated SOURCES ${SIM_TOP_FILE} VERILATOR_ARGS ${FINAL_VERILATOR_ARGS})
+  verilate(verilated SOURCES ${FINAL_SIM_FILES} PREFIX "V${SIM_TOP}" VERILATOR_ARGS ${FINAL_VERILATOR_ARGS})
 endif()
 
 ###
@@ -166,7 +171,7 @@ else()
     COMMAND ${QUESTA_VLIB} ${USER_QUESTA_WORKDIR_NAME}
   )
   add_custom_command(OUTPUT questa_compiled
-    COMMAND ${QUESTA_VLOG} ${FINAL_QUESTA_ARGS} ${FINAL_SIM_FILES} ${RENODE_SOURCES} "+incdir+${VERILOG_LIBRARY}"
+    COMMAND ${QUESTA_VLOG} ${FINAL_QUESTA_ARGS} ${FINAL_SIM_FILES} ${RENODE_SOURCES} "+incdir+${RENODE_HDL_LIBRARY}"
     DEPENDS questa_workdir ${FINAL_SIM_FILES} ${RENODE_SOURCES}
   )
   add_custom_command(OUTPUT questa_optimized
