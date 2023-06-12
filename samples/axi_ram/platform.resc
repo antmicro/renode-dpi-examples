@@ -2,4 +2,3 @@ using sysbus
 mach create
 
 machine LoadPlatformDescription $ORIGIN/platform.repl
-
