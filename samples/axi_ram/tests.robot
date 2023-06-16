@@ -4,12 +4,9 @@ Test Teardown                       Run Keywords
 ...                                 Terminate And Log
 
 *** Variables ***
-${URI}                              https://dl.antmicro.com/projects/renode
-${VFASTDMA_SOCKET_LINUX}            ${URI}/Vfastvdma-Linux-x86_64-1116123840-s_1616232-37fd8031dec810475ac6abf68a789261ce6551b0
-${VFASTDMA_SOCKET_WINDOWS}          ${URI}/Vfastvdma-Windows-x86_64-1116123840.exe-s_14833257-3a1fef7953686e58a00b09870c5a57e3ac91621d
-
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${VERILATED_BINARY}                 ${CURDIR}/build/verilated
+
 ${QUESTA_COMMAND}                   vsim
 ${QUESTA_WORK_LIBRARY}              ${CURDIR}/build/work_questa
 ${QUESTA_DESIGN}                    design_optimized
@@ -19,9 +16,6 @@ ${QUESTA_ARGUMENTS}                 ${EMPTY}
 *** Keywords ***
 Create Machine
     Execute Command                 include @${DPI_PLATFORM}
-    Execute Command                 machine LoadPlatformDescriptionFromString 'dma: Verilated.BaseDoubleWordVerilatedPeripheral @ sysbus <0x10000000, +0x100> { frequency: 100000; limitBuffer: 100000; timeout: 10000; address: "127.0.0.1" }'
-    Execute Command                 dma SimulationFilePathLinux @${VFASTDMA_SOCKET_LINUX}
-    Execute Command                 dma SimulationFilePathWindows @${VFASTDMA_SOCKET_WINDOWS}
 
 Connect Verilator
     ${connectionParameters}=        Execute Command  mem ConnectionParameters
@@ -54,89 +48,27 @@ Terminate And Log
         Log                             ${result.stderr}  ERROR
     END
 
-Transaction Should Finish
-    ${val}=                         Execute Command  dma ReadDoubleWord 0x4
-    Should Contain                  ${val}  0x00000000
-
-Prepare Data
-    [Arguments]                     ${addr}
-
-    # dummy data for verification
-    ${addr}=                        Evaluate  ${addr} + 0x0
-    Execute Command                 sysbus WriteDoubleWord ${addr} 0xDEADBEA7
-    ${addr}=                        Evaluate  ${addr} + 0x4
-    Execute Command                 sysbus WriteDoubleWord ${addr} 0xDEADC0DE
-    ${addr}=                        Evaluate  ${addr} + 0x4
-    Execute Command                 sysbus WriteDoubleWord ${addr} 0xCAFEBABE
-    ${addr}=                        Evaluate  ${addr} + 0x4
-    Execute Command                 sysbus WriteDoubleWord ${addr} 0x5555AAAA
-
-Configure DMA
-    [Arguments]                     ${src}
-    ...                             ${dst}
-    # reader start address
-    Execute Command                 dma WriteDoubleWord 0x10 ${src}
-    # reader line length in 32-bit words
-    Execute Command                 dma WriteDoubleWord 0x14 1024
-    # number of lines to read
-    Execute Command                 dma WriteDoubleWord 0x18 1
-    # stride size between consecutive lines in 32-bit words
-    Execute Command                 dma WriteDoubleWord 0x1c 0
-
-    # writer start address
-    Execute Command                 dma WriteDoubleWord 0x20 ${dst}
-    # writer line length in 32-bit words
-    Execute Command                 dma WriteDoubleWord 0x24 1024
-    # number of lines to write
-    Execute Command                 dma WriteDoubleWord 0x28 1
-    # stride size between consecutive lines in 32-bit words
-    Execute Command                 dma WriteDoubleWord 0x2c 0
-
-    # do not wait fo external synchronization signal
-    Execute Command                 dma WriteDoubleWord 0x00 0x0f
-
-Ensure Memory Is Clear
-    [Arguments]                     ${periph}
-
-    # Verify that there are 0's under the writer start address before starting the transaction
-    Memory Should Contain           ${periph}  0x0  0x00000000
-    Memory Should Contain           ${periph}  0x4  0x00000000
-    Memory Should Contain           ${periph}  0x8  0x00000000
-    Memory Should Contain           ${periph}  0xC  0x00000000
-
-Ensure Memory Is Written
-    [Arguments]                     ${periph}
-
-    # Verify data after the transaction
-    Memory Should Contain           ${periph}  0x0  0xDEADBEA7
-    Memory Should Contain           ${periph}  0x4  0xDEADC0DE
-    Memory Should Contain           ${periph}  0x8  0xCAFEBABE
-    Memory Should Contain           ${periph}  0xC  0x5555AAAA
-
 Memory Should Contain
-    [Arguments]                     ${periph}  ${addr}  ${val}
-    ${res}=                         Execute Command  ${periph} ReadDoubleWord ${addr}
+    [Arguments]                     ${addr}  ${val}
+    ${res}=                         Execute Command  mem ReadDoubleWord ${addr}
     Should Contain                  ${res}  ${val}
 
-Test Read Write Verilated Memory
-    Ensure Memory Is Clear          mem
+Test Read And Write Memory
+    Memory Should Contain           0x0  0x00000000
+    Memory Should Contain           0x1000  0x00000000
 
-    # Write to memory
-    Prepare Data                    0x20000000
+    Execute Command                 mem WriteDoubleWord 0x0 0x12345678
+    Execute Command                 mem WriteDoubleWord 0x4 0xCAFEBABE
+    Execute Command                 mem WriteDoubleWord 0x8 0x5A5A5A5A
+    Execute Command                 mem WriteDoubleWord 0x1000 0xDEADBEEF
 
-    Ensure Memory Is Written        mem
-
-Test DMA Transaction From Verilated Memory to Verilated Memory
-    Prepare Data                    0x20080000
-
-    Configure DMA                   0x20080000  0x20000000
-
-    Ensure Memory Is Clear          mem
-
-    Execute Command                 emulation RunFor "00:00:10.000000"
-    Transaction Should Finish
-
-    Ensure Memory Is Written        mem
+    Memory Should Contain           0x0  0x12345678
+    Memory Should Contain           0x4  0xCAFEBABE
+    Memory Should Contain           0x8  0x5A5A5A5A
+    Memory Should Contain           0xC  0x00000000
+    Memory Should Contain           0xFFFC  0x00000000
+    Memory Should Contain           0x1000  0xDEADBEEF
+    Memory Should Contain           0x1004  0x00000000
 
 *** Test Cases ***
 Should Connect Verilator
@@ -159,26 +91,18 @@ Should Connect Questa
     Wait For Log Entry              mem: Connected
     Execute Command                 mem Reset
 
-Should Read Write Verilated Memory In Verilator
+Should Read And Write Memory In Verilator
     [Tags]                          verilator
     Create Machine
     Connect Verilator
-    Test Read Write Verilated Memory
 
-Should Read Write Verilated Memory In Questa
+    Start Emulation
+    Test Read And Write Memory
+
+Should Read And Write Memory In Questa
     [Tags]                          questa
     Create Machine
     Connect Questa
-    Test Read Write Verilated Memory
 
-Should Run DMA Transaction From Verilated Memory to Verilated Memory In Verilator
-    [Tags]                          verilator
-    Create Machine
-    Connect Verilator
-    Test DMA Transaction From Verilated Memory to Verilated Memory
-
-Should Run DMA Transaction From Verilated Memory to Verilated Memory In Questa
-    [Tags]                          questa
-    Create Machine
-    Connect Questa
-    Test DMA Transaction From Verilated Memory to Verilated Memory
+    Start Emulation
+    Test Read And Write Memory
