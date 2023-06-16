@@ -21,18 +21,19 @@ The HDL top simulation file contains Renode related snippets:
 ## Usage
 
 ### Building Verilator
-For simplicity, build Verilator in the `verilator` directory inside this repository to use unmodified commands from this README.
+For simplicity, build Verilator in the `verilator` directory inside this repository to use unmodified commands from this README.  
+Instead of building Verilator from source you can download the artifacts with Verilator, which is built on the CI.
+You can find it in a specific run listed on [the Actions page](https://github.com/antmicro/renode-dpi-examples/actions?query=branch%3Amain).
 
-#### Linux
+#### Linux (Ubuntu)
 Use command below to build Verilator.
 ```bash
-sudo apt update
-sudo apt install -y git cmake ninja-build gperf ccache dfu-util device-tree-compiler wget python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 autoconf flex bison perl perl-doc numactl libfl2 libfl-dev verilator help2man
+sudo apt-get update && sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlibc zlib1g zlib1g-dev
 git clone https://github.com/verilator/verilator.git
 cd verilator
 git checkout v5.010
 autoconf
-./configure CC='ccache g++'
+./configure
 make -j `nproc`
 ```
 
