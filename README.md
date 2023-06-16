@@ -53,7 +53,7 @@ python3 -m pip install -r renode/tests/requirements.txt
 * Extract it to the `renode` directory
 * Run `python -m pip install -r renode/tests/requirements.txt`
 
-### Bulding a sample
+### Building a sample
 
 #### Linux
 Run in `samples/axi_ram`
