@@ -125,9 +125,9 @@ jobs:
           - axi_fastvdma
         config:
           - os: ubuntu-20.04
-            renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
+            renode_url: ${{ inputs.renode_url_linux || 'https://dl.antmicro.com/projects/renode/custom_builds/renode-1.13.3+20230704git31c1e5af.linux-portable.tar.gz' }}
           - os: windows-latest
-            renode_url: ${{ inputs.renode_url_windows || 'https://builds.renode.io/renode-latest.zip' }}
+            renode_url: ${{ inputs.renode_url_windows || 'https://dl.antmicro.com/projects/renode/custom_builds/renode_1.13.3+20230704git31c1e5af.zip' }}
     runs-on: ${{ matrix.config.os }}
     defaults:
       run:
