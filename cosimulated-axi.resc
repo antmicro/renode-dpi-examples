@@ -1,0 +1,59 @@
+include @samples/axi_fastvdma/basic_platform.resc
+
+dma SimulationFilePathLinux @/home/jolencki/ws/renode-dpi-examples--45917--dpi-interrupts/samples/axi_fastvdma/build/verilated
+
+macro prepare
+"""
+mem WriteDoubleWord 0x80000 0x12345678
+mem WriteDoubleWord 0x80004 0x11111111
+mem WriteDoubleWord 0x80008 0xFFFFFFFF
+mem WriteDoubleWord 0x8000C 0xA5A5A5A5
+
+dma WriteDoubleWord 0x08 0x3
+dma WriteDoubleWord 0x10 0x20080000  
+dma WriteDoubleWord 0x14 1024
+dma WriteDoubleWord 0x18 1
+dma WriteDoubleWord 0x1c 0
+dma WriteDoubleWord 0x20 0x20000000
+dma WriteDoubleWord 0x24 1024
+dma WriteDoubleWord 0x28 1
+dma WriteDoubleWord 0x2c 0
+dma WriteDoubleWord 0x00 0x0f
+
+dma ReadDoubleWord 0x04
+"""
+
+macro transaction
+"""
+emulation RunFor "0.02"
+
+dma ReadDoubleWord 0x04
+dma ReadDoubleWord 0x0C
+dma GetGPIOs
+dma WriteDoubleWord 0x0C 0xFF
+emulation RunFor "0.01"
+dma GetGPIOs
+"""
+
+# runMacro $prepare
+# runMacro $transaction
+
+logLevel -1 plic
+
+dma WriteDoubleWord 0x10 0x20080000  
+dma WriteDoubleWord 0x14 1024
+dma WriteDoubleWord 0x18 1
+dma WriteDoubleWord 0x1c 0
+dma WriteDoubleWord 0x20 0x20000000
+dma WriteDoubleWord 0x24 1024
+dma WriteDoubleWord 0x28 1
+dma WriteDoubleWord 0x2c 0
+dma WriteDoubleWord 0x00 0x0f
+dma WriteDoubleWord 0x08 0x3
+emulation RunFor "00:00:0.1"
+dma ReadDoubleWord 0x4
+
+dma WriteDoubleWord 0x0C 0x01
+emulation RunFor "00:00:0.1"
+dma WriteDoubleWord 0x0C 0x02
+emulation RunFor "00:00:0.1"
