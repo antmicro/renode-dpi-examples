@@ -1,0 +1,40 @@
+:name: FastVDMA Cosimulation on Zynq
+:description: This script runs Linux with built in FastVDMA driver on Zedboard.
+
+using sysbus
+$name?="Zynq-FastVDMA"
+mach create $name
+
+machine LoadPlatformDescription $ORIGIN/platform_linux.repl
+
+sysbus Redirect 0xC0000000 0x0 0x10000000
+
+$bin?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma_vmlinux-s_13611036-802d102e9341668636631447e99389f79043c18d
+$rootfs?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma_rootfs.ext2-s_33554432-7a53506ed3e6cdaf247280ad7025ff1aa4cb98c5
+$dtb?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma.dtb-s_12284-4f3a630a9bce9e0984151b95e9efa581ef7525bf
+
+### create externals ###
+
+showAnalyzer sysbus.uart1
+
+## set timer frequency ##
+ttc0 Frequency 33333333
+ttc1 Frequency 33333333
+
+macro reset
+"""
+    ### set registers ###
+
+    cpu SetRegisterUnsafe 0 0x000
+    cpu SetRegisterUnsafe 1 0xD32 # board id
+    cpu SetRegisterUnsafe 2 0x100 # device tree address
+
+    ### load binaries ###
+
+    sysbus LoadELF $bin
+    sysbus LoadFdt $dtb 0x100 "console=ttyPS0,115200 root=/dev/ram0 rw earlyprintk initrd=0x1a000000,32M" false
+    sysbus ZeroRange 0x1a000000 0x800000
+    sysbus LoadBinary $rootfs 0x1a000000
+"""
+
+runMacro $reset
