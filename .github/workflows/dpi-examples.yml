@@ -122,6 +122,7 @@ jobs:
       matrix:
         sample:
           - axi_ram
+          - axi_fastvdma
         config:
           - os: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
