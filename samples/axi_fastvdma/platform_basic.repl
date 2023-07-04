@@ -1,0 +1,15 @@
+dma: Verilated.VerilatedPeripheral @ sysbus <0x10000000, +0x100>
+    maxWidth: 32
+    limitBuffer: 1000000
+    timeout: 5000
+    numberOfInterrupts: 2
+    address: "127.0.0.1"
+    [0-1] -> plic@[1-2]
+
+mem: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x100000 
+
+plic: IRQControllers.PlatformLevelInterruptController @ sysbus 0x40000000
+    numberOfSources: 31
+    numberOfContexts: 0
+    prioritiesEnabled : false

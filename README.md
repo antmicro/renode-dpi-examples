@@ -144,4 +144,5 @@ You can close the simulation by calling the `quit` command in the Renode Monitor
 It will also finish the HDL simulation.
 
 ## Samples list
-* [RAM as an AXI4 subordinate](/samples/axi_ram/axi_ram.v)
+* [RAM](/samples/axi_ram/axi_ram.v) - *AXI4 subordinate*
+* [DMA](/samples/axi_fastvdma/DMATop.v) using [the fastvdma controller](https://github.com/antmicro/fastvdma) - *AXI4-Lite subordinate, AXI4 manager, GPIO*
