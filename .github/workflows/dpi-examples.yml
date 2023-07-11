@@ -160,7 +160,7 @@ jobs:
       
       - name: Set CMake cache variable
         run: |
-          sed -ri 's/(AXI_DATA_WIDTH)\s+32/\1 ${{ matrix.bus_width}}/'${{ env.CUSTOM_SAMPLE_DIR }}/CMakeLists.txt
+          sed -ri 's/(AXI_DATA_WIDTH)\s+32/\1 ${{ matrix.bus_width}}/' ${{ env.CUSTOM_SAMPLE_DIR }}/CMakeLists.txt
 
       - name: Clean up custom sample dir
         run: |
