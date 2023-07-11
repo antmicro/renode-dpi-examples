@@ -158,11 +158,9 @@ jobs:
           make verilog CONFIG_FILE=$CONFIG_FILE
           cp DMATop*.v ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
       
-      - name: Preset CMake cache variable
+      - name: Set CMake cache variable
         run: |
-          mkdir -p ${{ env.CUSTOM_SAMPLE_DIR }}/build
-          cd ${{ env.CUSTOM_SAMPLE_DIR }}/build
-          cmake .. -DAXI_DATA_WIDTH=${{ matrix.bus_width }}
+          sed -ri 's/(AXI_DATA_WIDTH)\s+32/\1 ${{ matrix.bus_width}}/'${{ env.CUSTOM_SAMPLE_DIR }}/CMakeLists.txt
 
       - name: Clean up custom sample dir
         run: |
