@@ -27,7 +27,6 @@ jobs:
   build-verilator:
     name: Build Verilator
     strategy:
-      fail-fast: false
       matrix:
           os: 
             - ubuntu-20.04
@@ -150,10 +149,10 @@ jobs:
       - name: Build HDL
         run: |
           cp -R ${{ env.SAMPLE_DIR }} ${{ env.CUSTOM_SAMPLE_DIR}}
-          CONFIG_JSON=${{ env.CUSTOM_SAMPLE_DIR }}/config_${{ matrix.bus_width }}
+          CONFIG_FILE=${{ env.CUSTOM_SAMPLE_DIR }}/config_${{ matrix.bus_width }}.json
           jq --argjson width ${{ matrix.bus_width }} \
           '.readDataWidth = $width | .writeDataWidth = $width' \
-          ${{ env.SAMPLE_DIR }}/config_base.json > $CONFIG_JSON
+          ${{ env.SAMPLE_DIR }}/config_base.json > $CONFIG_FILE
 
           cd ${{ env.FASTVDMA_DIR }}
           make verilog CONFIG_FILE=$CONFIG_FILE
