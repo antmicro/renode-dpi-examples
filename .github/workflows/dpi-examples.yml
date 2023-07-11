@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FASTVDMA_GIT_REF: 0172db9
+      FASTVDMA_GIT_REF: 0172db9fb0e3873af418941ecc0151241666350a
       FASTVDMA_DIR: ${{ github.workspace }}/fastvdma
       SAMPLE_DIR: ${{ github.workspace }}/samples/axi_fastvdma
       CUSTOM_SAMPLE_NAME: axi_fastvdma-${{ matrix.bus_width }}
@@ -131,6 +131,7 @@ jobs:
     steps:
       - name: Checkout the renode-dpi-examples repository
         uses: actions/checkout@v3
+
       - name: Clone the FastVDMA repository
         uses: actions/checkout@v3
         with:
