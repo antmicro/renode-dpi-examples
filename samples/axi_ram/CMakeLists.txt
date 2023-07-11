@@ -10,7 +10,8 @@ set(SIM_FILES axi_ram.v)
 
 # Verilator variables
 set(VERILATOR_CSOURCES sim_main.cpp)
-set(VERILATOR_ARGS -Wno-WIDTH -Wno-CASEINCOMPLETE --timing)
+set(VERILATOR_ARGS -Wno-WIDTH -Wno-CASEINCOMPLETE --timing --trace)
+add_compile_definitions(VM_TRACE)
 
 # Questa variables
 set(QUESTA_ARGS "")

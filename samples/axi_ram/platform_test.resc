@@ -1,0 +1,6 @@
+include $ORIGIN/platform.resc
+
+mem SimulationFilePathLinux "/home/jolencki/ws/renode-dpi-examples--46463--various-access-width/samples/axi_ram/build/verilated"
+
+start
+mem ReadDoubleWord 0x0

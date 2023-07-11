@@ -1,16 +1,14 @@
 *** Settings ***
+Resource                            ${CURDIR}/../../robot/dpi.robot
 Test Teardown                       Run Keywords
 ...                                 Test Teardown
 ...                                 Terminate And Log
 
 *** Variables ***
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
-${VERILATED_BINARY}                 ${CURDIR}/build/verilated
-
-${QUESTA_COMMAND}                   vsim
-${QUESTA_WORK_LIBRARY}              ${CURDIR}/build/work_questa
-${QUESTA_DESIGN}                    design_optimized
-${QUESTA_ARGUMENTS}                 ${EMPTY}
+${BUILD_DIRECTORY}                  ${CURDIR}/build
+${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
+${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
 ${TEST_DATA}                        12345678CAFEBABE000000005A5A5A5A
 
@@ -18,29 +16,6 @@ ${TEST_DATA}                        12345678CAFEBABE000000005A5A5A5A
 *** Keywords ***
 Create Machine
     Execute Command                 include @${DPI_PLATFORM}
-
-Connect Verilator
-    ${connectionParameters}=        Execute Command  mem ConnectionParameters
-    ${simulationArguments}=         Split String  ${connectionParameters}
-    ${logFile}=                     Allocate Temporary File
-    Start Process                   ${VERILATED_BINARY}  @{simulationArguments}  stdout=${logFile}
-    Execute Command                 mem Connect
-
-Connect Questa
-    ${connectionParameters}=        Execute Command  mem ConnectionParameters
-    ${connectionArguments}=         Split String  ${connectionParameters}
-    ${simulationArguments}=         Split String  ${QUESTA_ARGUMENTS}
-
-    ${system}=                      Evaluate  platform.system()  modules=platform
-    Append To List                  ${simulationArguments}  -work  ${QUESTA_WORK_LIBRARY}
-    Append To List                  ${simulationArguments}  -c  -do  run -all  -onfinish  exit
-    Append To List                  ${simulationArguments}  -GReceiverPort\=${connectionArguments}[0]  -GSenderPort\=${connectionArguments}[1]  -GAddress\="${connectionArguments}[2]"
-    IF  '${system}' == 'Windows'
-        Append To List                  ${simulationArguments}  -ldflags  -lws2_32
-    END
-    ${logFile}=                     Allocate Temporary File
-    Start Process                   ${QUESTA_COMMAND}  ${QUESTA_DESIGN}  @{simulationArguments}  stdout=${logFile}
-    Execute Command                 mem Connect
 
 Terminate And Log
     ${result}=                      Wait For Process  timeout=5 secs  on_timeout=terminate
@@ -104,7 +79,7 @@ Should Connect Verilator
     Create Log Tester               0
     Execute Command                 logLevel 0
     Create Machine
-    Connect Verilator
+    Connect Verilator               mem  ${VERILATED_BINARY}
 
     Wait For Log Entry              mem: Connected
     Execute Command                 mem Reset
@@ -114,7 +89,7 @@ Should Connect Questa
     Create Log Tester               0
     Execute Command                 logLevel 0
     Create Machine
-    Connect Questa
+    Connect Questa                  mem  ${QUESTA_WORK_LIBRARY}
 
     Wait For Log Entry              mem: Connected
     Execute Command                 mem Reset
@@ -122,7 +97,7 @@ Should Connect Questa
 Should Read And Write Memory In Verilator
     [Tags]                          verilator
     Create Machine
-    Connect Verilator
+    Connect Verilator               mem  ${VERILATED_BINARY}
 
     Start Emulation
     Test Read And Write Memory
@@ -130,7 +105,7 @@ Should Read And Write Memory In Verilator
 Should Read And Write Memory In Questa
     [Tags]                          questa
     Create Machine
-    Connect Questa
+    Connect Questa                  mem  ${QUESTA_WORK_LIBRARY}
 
     Start Emulation
     Test Read And Write Memory

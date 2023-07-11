@@ -21,6 +21,7 @@ on:
         type: string
 env:
   VERILATOR_GIT_REF: ${{ inputs.verilator_git_ref || 'v5.010' }}
+  ARTIFACTS_PREFIX: renode-dpi-
 
 jobs:
   build-verilator:
@@ -113,16 +114,79 @@ jobs:
           name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
           path: verilator.tar
 
+  build-fastvdma-samples:
+    name: Build FastVDMA samples
+    strategy:
+      matrix:
+        bus_width: [8, 16, 32]
+    runs-on: ubuntu-latest
+
+    env:
+      FASTVDMA_GIT_REF: 0172db9
+      FASTVDMA_DIR: ${{ github.workspace }}/fastvdma
+      SAMPLE_DIR: ${{ github.workspace }}/samples/axi_fastvdma
+      CUSTOM_SAMPLE_NAME: axi_fastvdma-${{ matrix.bus_width }}
+      CUSTOM_SAMPLE_DIR: ${{ github.workspace }}/samples/axi_fastvdma-${{ matrix.bus_width }}
+
+    steps:
+      - name: Checkout the renode-dpi-examples repository
+        uses: actions/checkout@v3
+      - name: Clone the FastVDMA repository
+        uses: actions/checkout@v3
+        with:
+          repository: antmicro/fastvdma
+          ref: ${{ env.FASTVDMA_GIT_REF }}
+          path: fastvdma
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get --allow-releaseinfo-change update && sudo apt-get install -y --no-install-recommends apt-transport-https curl gnupg graphicsmagick-imagemagick-compat graphicsmagick-imagemagick-compat default-jdk default-jre
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list:wq
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+          curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+          sudo apt-get update && sudo apt-get install -y sbt
+      
+      - name: Build HDL
+        run: |
+          cp -R ${{ env.SAMPLE_DIR }} ${{ env.CUSTOM_SAMPLE_DIR}}
+          CONFIG_JSON=${{ env.CUSTOM_SAMPLE_DIR }}/config_${{ matrix.bus_width }}
+          jq --argjson width ${{ matrix.bus_width }} \
+          '.readDataWidth = $width | .writeDataWidth = $width' \
+          ${{ env.SAMPLE_DIR }}/config_base.json > $CONFIG_JSON
+
+          cd ${{ env.FASTVDMA_DIR }}
+          make verilog CONFIG_FILE=$CONFIG_FILE
+          cp DMATop*.v ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
+      
+      - name: Preset CMake cache variable
+        run: |
+          mkdir -p ${{ env.CUSTOM_SAMPLE_DIR }}/build
+          cd ${{ env.CUSTOM_SAMPLE_DIR }}/build
+          cmake .. -DAXI_DATA_WIDTH=${{ matrix.bus_width }}
+
+      - name: Clean up custom sample dir
+        run: |
+          cd ${{ env.CUSTOM_SAMPLE_DIR }}
+          rm *_linux.*
+          rm config_base.json
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACTS_PREFIX }}axi_fastvdma-${{ matrix.width }}
+          path: ${{ env.CUSTOM_SAMPLE_DIR }}
+
 
   run-example:
     name: Run example
-    needs: build-verilator
+    needs: [build-fastvdma-samples, build-verilator]
     strategy:
       fail-fast: false
       matrix:
         sample:
           - axi_ram
           - axi_fastvdma
+          - axi_fastvdma-32
         config:
           - os: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://dl.antmicro.com/projects/renode/custom_builds/renode-1.13.3+20230704git31c1e5af.linux-portable.tar.gz' }}
@@ -137,7 +201,6 @@ jobs:
       SAMPLE_NAME: ${{ matrix.sample }}
       SAMPLE_DIR: ${{ github.workspace }}/samples/${{ matrix.sample }}
       ARTIFACTS_DIR_NAME: artifacts
-      ARTIFACTS_PREFIX: renode-dpi-
       CC: ${{ matrix.config.os == 'ubuntu-20.04' && 'gcc-10' || 'gcc' }}
       CXX: ${{ matrix.config.os == 'ubuntu-20.04' && 'g++-10' || 'g++' }}
 
@@ -164,23 +227,32 @@ jobs:
       - name: Unpack Renode for Linux
         if: ${{ runner.os != 'Windows' }}
         run: |
-            mkdir renode
-            tar xf renode*.tar.gz --strip-components 1 -C renode
+          mkdir renode
+          tar xf renode*.tar.gz --strip-components 1 -C renode
 
       - name: Unpack Renode for Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-            unzip renode*.zip
-            rm renode*.zip
-            mv renode_* renode
+          unzip renode*.zip
+          rm renode*.zip
+          mv renode_* renode
 
       - name: Install Robot framework dependencies
         run: python3 -m pip install -r renode/tests/requirements.txt
-  
+
+      - name: Download the Verilator artifact
+        if: ${{ startsWith(matrix.sample, 'axi_fastvdma-') }}
+        uses: actions/download-artifact@v3
+        with:
+          name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
+          path: ${{ github.workspace }}
+      - name: Use alternative FastVDMA Verilog file
+        run: |
+          
 
       - name: Prepare the sample and the artifacts directory
         run: |
-          mkdir samples/${{ env.SAMPLE_NAME }}/build
+          mkdir -p samples/${{ env.SAMPLE_NAME }}/build
           mkdir ${{ env.ARTIFACTS_DIR_NAME }}
 
       - name: Build the sample on Linux
@@ -205,7 +277,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: >
           renode/renode-test
-          ${{ env.SAMPLE_DIR}}/tests.robot
+          ${{ env.SAMPLE_DIR}}/test*.robot
           --include verilator
 
       - name: Run tests on Windows
@@ -213,7 +285,7 @@ jobs:
         shell: powershell
         run: >
           renode\bin\renode-test.bat
-          ${{ env.SAMPLE_DIR}}\tests.robot
+          ${{ env.SAMPLE_DIR}}\test*.robot
           --include verilator
           --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
 

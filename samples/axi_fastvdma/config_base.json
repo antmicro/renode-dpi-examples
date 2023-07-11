@@ -1,0 +1,14 @@
+{
+    "configuration": "AXI_AXIL_AXI",
+    "addrWidth": 32,
+    "readDataWidth": 32,
+    "writeDataWidth": 32,
+    "readMaxBurst": 0,
+    "writeMaxBurst": 16,
+    "reader4KBarrier": false,
+    "writer4KBarrier": true,
+    "controlDataWidth": 32,
+    "controlAddrWidth": 32,
+    "controlRegCount": 16,
+    "fifoDepth": 512
+  }
