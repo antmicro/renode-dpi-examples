@@ -173,7 +173,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.ARTIFACTS_PREFIX }}axi_fastvdma-${{ matrix.width }}
+          name: ${{ env.ARTIFACTS_PREFIX }}axi_fastvdma-${{ matrix.bus_width }}
           path: ${{ env.CUSTOM_SAMPLE_DIR }}
 
 
@@ -240,19 +240,17 @@ jobs:
       - name: Install Robot framework dependencies
         run: python3 -m pip install -r renode/tests/requirements.txt
 
-      - name: Download the Verilator artifact
+      - name: Download a custom build of the axi_fastvdma
         if: ${{ startsWith(matrix.sample, 'axi_fastvdma-') }}
         uses: actions/download-artifact@v3
         with:
-          name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
-          path: ${{ github.workspace }}
-      - name: Use alternative FastVDMA Verilog file
-        run: |
+          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}
+          path: ${{ env.SAMPLE_DIR }}
           
 
       - name: Prepare the sample and the artifacts directory
         run: |
-          mkdir -p samples/${{ env.SAMPLE_NAME }}/build
+          mkdir -p ${{ env.SAMPLE_DIR }}/build
           mkdir ${{ env.ARTIFACTS_DIR_NAME }}
 
       - name: Build the sample on Linux
