@@ -157,6 +157,7 @@ jobs:
           cd ${{ env.FASTVDMA_DIR }}
           make verilog CONFIG_FILE=$CONFIG_FILE
           cp DMATop*.v ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
+          sed -i 's/DMATopAXI_AXIL_AXI/DMATop/' ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
       
       - name: Set CMake cache variable
         run: |
