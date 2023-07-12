@@ -113,8 +113,8 @@ jobs:
           name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
           path: verilator.tar
 
-  build-fastvdma-samples:
-    name: Build FastVDMA samples
+  build-fastvdma-example:
+    name: Build FastVDMA example
     strategy:
       matrix:
         bus_width: [8, 16, 32]
@@ -177,7 +177,7 @@ jobs:
 
   run-example:
     name: Run example
-    needs: [build-fastvdma-samples, build-verilator]
+    needs: [build-fastvdma-example, build-verilator]
     strategy:
       fail-fast: false
       matrix:
