@@ -118,6 +118,22 @@ jobs:
             custom_cmake_args: -DAXI_DATA_WIDTH=8
             custom_robot_args: --variable=BUS_WIDTH:8
           - directory_name: axi_fastvdma
+          - directory_name: axi_fastvdma-64
+            custom_artifact: true
+            custom_cmake_args: -DAXI_DATA_WIDTH=64
+            custom_robot_args: --variable=BUS_WIDTH:64
+          - directory_name: axi_fastvdma-32
+            custom_artifact: true
+            custom_cmake_args: -DAXI_DATA_WIDTH=32
+            custom_robot_args: --variable=BUS_WIDTH:32
+          - directory_name: axi_fastvdma-16
+            custom_artifact: true
+            custom_cmake_args: -DAXI_DATA_WIDTH=16
+            custom_robot_args: --variable=BUS_WIDTH:16
+          - directory_name: axi_fastvdma-8
+            custom_artifact: true
+            custom_cmake_args: -DAXI_DATA_WIDTH=8
+            custom_robot_args: --variable=BUS_WIDTH:8
         config:
           - runner: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}

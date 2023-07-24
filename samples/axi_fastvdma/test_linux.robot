@@ -1,0 +1,92 @@
+*** Settings ***
+Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
+Test Teardown                       Run Keywords
+...                                 Test Teardown
+...                                 Terminate And Log
+
+
+*** Variables ***
+${BUILD_DIRECTORY}                  ${CURDIR}/build
+${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
+${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
+
+${LINUX_PLATFORM}                   ${CURDIR}/platform_linux.resc
+${LINUX_PROMPT}                     zynq>
+${LINUX_UART}                       sysbus.uart1
+${FASTVDMA_DRIVER}                  /lib/modules/5.10.0-xilinx/kernel/drivers/dma/fastvdma/fastvdma.ko
+${FASTVDMA_DEMO_DRIVER}             /lib/modules/5.10.0-xilinx/kernel/drivers/dma/fastvdma/fastvdma-demo.ko
+
+
+*** Keywords ***
+Create Machine
+    Execute Command                 include @${LINUX_PLATFORM}
+
+Compare Parts Of Images On Linux
+    [Arguments]                     ${img0}  ${img1}  ${count}  ${skip0}  ${skip1}
+
+    Write Line To Uart              dd if=${img0} of=test.rgba bs=128 count=${count} skip=${skip0}
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+    Write Line To Uart              dd if=${img1} of=otest.rgba bs=128 count=${count} skip=${skip1}
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+    Write Line To Uart              cmp test.rgba otest.rgba
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+# Check if exit status is 0 (the input files are the same)
+    Write Line To Uart              echo $?
+    Wait For Line On Uart           0
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+Test DMA Driver On Linux
+    Start Emulation
+
+    Wait For Prompt On Uart         ${LINUX_PROMPT}  timeout=30
+
+# Suppress messages from kernel space
+    Write Line To Uart              echo 0 > /proc/sys/kernel/printk
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+# Write Line To Uart for some reason breaks this line into two.
+    Write To Uart                   insmod ${FASTVDMA_DRIVER} ${\n}
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+    Write To Uart                   insmod ${FASTVDMA_DEMO_DRIVER} ${\n}
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+    Write Line To Uart              lsmod
+    Wait For Line On Uart           Module
+    Wait For Line On Uart           fastvdma_demo
+    Wait For Line On Uart           fastvdma
+    Wait For Prompt On Uart         ${LINUX_PROMPT}
+
+    Write Line To Uart              ./demo
+    Wait For Prompt On Uart         ${LINUX_PROMPT}  timeout=20
+
+    Write Line To Uart              chmod +rw out.rgba
+    Wait For Prompt On Uart         ${LINUX_PROMPT}  timeout=20
+
+    Compare Parts Of Images On Linux  img0.rgba  out.rgba  2048  0  0
+    FOR  ${i}  IN RANGE  8
+        Compare Parts Of Images On Linux  img0.rgba  out.rgba  4  ${2048 + ${i} * 16}  ${2048 + ${i} * 16}
+        Compare Parts Of Images On Linux  img1.rgba  out.rgba  8  ${${i} * 8}  ${2052 + ${i} * 16}
+        Compare Parts Of Images On Linux  img0.rgba  out.rgba  4  ${2060 + ${i} * 16}  ${2060 + ${i} * 16}
+    END
+    Compare Parts Of Images On Linux  img0.rgba  out.rgba  2052  6140  6140
+
+
+*** Test Cases ***
+Should Boot Linux And Use DMA In Verilator
+    [Tags]                          verilator  linux
+    Create Machine
+    Connect To Verilator            dma  ${VERILATED_BINARY}
+    Create Terminal Tester          ${LINUX_UART}
+
+    Test DMA Driver On Linux
+
+Should Boot Linux And Use DMA In Questa
+    [Tags]                          questa  linux
+    Create Machine
+    Connect To Questa               dma  ${QUESTA_WORK_LIBRARY}
+    Create Terminal Tester          ${LINUX_UART}
+
+    Test DMA Driver On Linux
