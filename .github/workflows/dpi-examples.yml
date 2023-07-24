@@ -19,220 +19,44 @@ on:
         description: Reference to a Verilator commit
         required: true
         type: string
-env:
-  VERILATOR_GIT_REF: ${{ inputs.verilator_git_ref || 'v5.010' }}
 
 jobs:
-  build-verilator:
-    name: Build Verilator
-    strategy:
-      fail-fast: false
-      matrix:
-          os: 
-            - ubuntu-20.04
-            - windows-latest
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: ${{ matrix.os == 'windows-latest' && 'msys2 {0}' || 'bash' }}
-
-    env:
-      BUILD_DIR_NAME: build
-      CCACHE_DIR_NAME: .ccache
-
-    steps:
-      - name: Clone the Verilator repository
-        uses: actions/checkout@v3
-        with:
-          repository: verilator/verilator
-          ref: ${{ env.VERILATOR_GIT_REF }}
-
-      - name: Prepare cache for the ccache compiler
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/${{ env.CCACHE_DIR_NAME }}
-          key: verilator-${{ runner.os }}_${{ runner.arch }}-${{ matrix.os }}-${{ env.VERILATOR_GIT_REF }}
-          restore-keys: verilator-${{ runner.os }}_${{ runner.arch }}
-
-      - name: Install dependencies on Linux
-        if: ${{ runner.os != 'Windows' }}
-        run: >
-          sudo apt update 
-          && sudo apt install
-          git help2man perl python3 make autoconf g++ flex bison ccache
-          libgoogle-perftools-dev numactl perl-doc
-          libfl2
-          libfl-dev
-          zlibc zlib1g zlib1g-dev
-
-      - name: Install dependencies on Windows
-        uses: msys2/setup-msys2@v2
-        if: ${{ runner.os == 'Windows' }}
-        with:
-          update: true
-          install: >
-            git
-            unzip
-            autoconf
-            findutils
-            bison
-            flex
-            help2man
-            gperf
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-make 
-            mingw-w64-x86_64-python
-            mingw-w64-x86_64-python-pip
-            mingw-w64-x86_64-ccache
-            mingw-w64-x86_64-autotools
-
-      - name: Fix include bug on Windows
-        if: ${{ runner.os == 'Windows' }}
-        run: cp /usr/include/FlexLexer.h include/
-
-      - name: Build
-        run: |
-          export CCACHE_DIR=$PWD/$CCACHE_DIR_NAME
-          autoconf
-          ./configure --prefix $PWD/$BUILD_DIR_NAME
-          make -j `nproc`
-          make install
-          ccache -s
-      
-      - name: Prepare artifacts
-        run: |
-          mv ${{ env.BUILD_DIR_NAME }}/share/verilator .
-          rm ${{ env.BUILD_DIR_NAME }}/bin/verilator_bin_dbg*
-          mv ${{ env.BUILD_DIR_NAME }}/bin/* verilator/bin
-          tar -cvf verilator.tar verilator
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
-          path: verilator.tar
+  build-verilator-linux:
+    uses: ./.github/workflows/build-verilator.yml
+    with:
+      runner: ubuntu-20.04
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.010' }}
+  build-verilator-windows:
+    uses: ./.github/workflows/build-verilator.yml
+    with:
+      runner: windows-latest
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.010' }}
 
 
-  run-example:
-    name: Run example
-    needs: build-verilator
+  run-sample:
+    name: Run sample
+    needs: [build-verilator-linux, build-verilator-windows]
     strategy:
       fail-fast: false
       matrix:
         sample:
-          - axi_ram
-          - axi_fastvdma
+          - directory_name: axi_ram
+          - directory_name: axi_fastvdma
         config:
-          - os: ubuntu-20.04
+          - runner: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
-          - os: windows-latest
+            verilator_artifact: ${{ needs.build-verilator-linux.outputs.verilator_artifact }}
+          - runner: windows-latest
             renode_url: ${{ inputs.renode_url_windows || 'https://builds.renode.io/renode-latest.zip' }}
-    runs-on: ${{ matrix.config.os }}
-    defaults:
-      run:
-        shell: bash
+            verilator_artifact: ${{ needs.build-verilator-windows.outputs.verilator_artifact }}
 
-    env:
-      SAMPLE_NAME: ${{ matrix.sample }}
-      SAMPLE_DIR: ${{ github.workspace }}/samples/${{ matrix.sample }}
-      ARTIFACTS_DIR_NAME: artifacts
-      ARTIFACTS_PREFIX: renode-dpi-
-      CC: ${{ matrix.config.os == 'ubuntu-20.04' && 'gcc-10' || 'gcc' }}
-      CXX: ${{ matrix.config.os == 'ubuntu-20.04' && 'g++-10' || 'g++' }}
+    uses: ./.github/workflows/run-sample.yml
+    with:
+      sample: ${{ matrix.sample.directory_name }}
+      custom_artifact: ${{ matrix.sample.custom_artifact || false }}
+      custom_cmake_args: ${{ matrix.sample.custom_cmake_args || '' }}
+      custom_robot_args: ${{ matrix.sample.custom_robot_args || '' }}
 
-    steps: 
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        id: python-setup
-        with:
-          python-version: '3.11'
-      
-      - name: Download the Verilator artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: verilator_${{ env.VERILATOR_GIT_REF }}-${{ runner.os }}_${{ runner.arch }}
-          path: ${{ github.workspace }}
-
-      - name: Untar the Verilator artifact
-        run: tar -xf verilator.tar
-
-      - name: Download Renode
-        run: curl -sSLO ${{ matrix.config.renode_url }}
-
-      - name: Unpack Renode for Linux
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-            mkdir renode
-            tar xf renode*.tar.gz --strip-components 1 -C renode
-
-      - name: Unpack Renode for Windows
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-            unzip renode*.zip
-            rm renode*.zip
-            mv renode_* renode
-
-      - name: Install Robot framework dependencies
-        run: python3 -m pip install -r renode/tests/requirements.txt
-  
-
-      - name: Prepare the sample and the artifacts directory
-        run: |
-          mkdir samples/${{ env.SAMPLE_NAME }}/build
-          mkdir ${{ env.ARTIFACTS_DIR_NAME }}
-
-      - name: Build the sample on Linux
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-          cd ${{ env.SAMPLE_DIR }}/build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator
-          make
-          cp verilated ${{ github.workspace }}/${{ env.ARTIFACTS_DIR_NAME }}/
-        
-      - name: Build the sample on Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: powershell
-        run: |
-          cd ${{ env.SAMPLE_DIR }}\build
-          cmake.exe .. -G "MinGW Makefiles" -DUSER_RENODE_DIR="..\..\..\renode" -DUSER_VERILATOR_DIR="..\..\..\verilator"
-          mingw32-make.exe
-          cp verilated.exe ${{ github.workspace }}\${{ env.ARTIFACTS_DIR_NAME }}\
-
-
-      - name: Run tests on Linux
-        if: ${{ runner.os != 'Windows' }}
-        run: >
-          renode/renode-test
-          ${{ env.SAMPLE_DIR}}/tests.robot
-          --include verilator
-
-      - name: Run tests on Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: powershell
-        run: >
-          renode\bin\renode-test.bat
-          ${{ env.SAMPLE_DIR}}\tests.robot
-          --include verilator
-          --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
-
-      - name: Copy the output of test
-        if: always()
-        run: |
-          mv log.html ${{ env.ARTIFACTS_DIR_NAME }}/
-          mv report.html ${{ env.ARTIFACTS_DIR_NAME }}/
-          mv robot_output.xml ${{ env.ARTIFACTS_DIR_NAME }}/
-
-      - name: Prepare artifacts
-        if: always()
-        run: |
-          cd ${{ env.ARTIFACTS_DIR_NAME }}  
-          for file in * ; do mv -- "$file" "${{ env.ARTIFACTS_PREFIX }}$file" ; done
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-${{ runner.os }}-${{ runner.arch }}
-          path: ${{ env.ARTIFACTS_DIR_NAME }}/*
+      runner: ${{ matrix.config.runner }}
+      renode_url: ${{ matrix.config.renode_url }}
+      verilator_artifact: ${{ matrix.config.verilator_artifact }}

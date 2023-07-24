@@ -163,7 +163,7 @@ separate_arguments(USER_QUESTA_ARGS)
 set(FINAL_QUESTA_ARGS ${USER_QUESTA_ARGS})
 list(APPEND FINAL_QUESTA_ARGS -work ${USER_QUESTA_WORKDIR_NAME})
 
-set(USER_QUESTA_OPTIMIZATION_ARGS ${QUESTA_OPTIMIZATION_ARGS} CACHE STRING "Extra arguments/switches used for all Questa vlog command")
+set(USER_QUESTA_OPTIMIZATION_ARGS ${QUESTA_OPTIMIZATION_ARGS} CACHE STRING "Extra arguments/switches used for all Questa vopt command")
 
 if(NOT QUESTA_VLIB OR NOT QUESTA_VLOG OR NOT QUESTA_VOPT OR NOT QUESTA_VSIM)
   message(NOTICE "There's no Questa available. This target will be ignored.")

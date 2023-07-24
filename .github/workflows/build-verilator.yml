@@ -1,0 +1,106 @@
+name: Build Verilator
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      verilator_git_ref:
+        required: true
+        type: string
+    outputs:
+      verilator_artifact:
+        value: ${{ jobs.build-verilator.outputs.verilator_artifact }}
+
+jobs:
+  build-verilator:
+    name: Build Verilator
+    runs-on: ${{ inputs.runner }}
+
+    defaults:
+      run:
+        shell: ${{ inputs.runner == 'windows-latest' && 'msys2 {0}' || 'bash' }}
+
+    env:
+      BUILD_DIR_NAME: build
+      CCACHE_DIR_NAME: .ccache
+      VERILATOR_ARTIFACT_NAME: verilator_${{ inputs.verilator_git_ref }}-${{ inputs.runner }}
+
+    outputs:
+      verilator_artifact: ${{ steps.prepare-artifacts.outputs.verilator_artifact }}
+
+    steps:
+      - name: Clone the Verilator repository
+        uses: actions/checkout@v3
+        with:
+          repository: verilator/verilator
+          ref: ${{ inputs.verilator_git_ref}}
+
+      - name: Prepare cache for the ccache compiler
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/${{ env.CCACHE_DIR_NAME }}
+          key: verilator-${{ runner.os }}_${{ runner.arch }}-${{ inputs.verilator_git_ref }}-${{ inputs.runner }}
+          restore-keys: verilator-${{ runner.os }}_${{ runner.arch }}
+
+      - name: Install dependencies on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: >
+          sudo apt update 
+          && sudo apt install
+          git help2man perl python3 make autoconf g++ flex bison ccache
+          libgoogle-perftools-dev numactl perl-doc
+          libfl2
+          libfl-dev
+          zlibc zlib1g zlib1g-dev
+
+      - name: Install dependencies on Windows
+        uses: msys2/setup-msys2@v2
+        if: ${{ runner.os == 'Windows' }}
+        with:
+          update: true
+          install: >
+            git
+            unzip
+            autoconf
+            findutils
+            bison
+            flex
+            help2man
+            gperf
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make 
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-python-pip
+            mingw-w64-x86_64-ccache
+            mingw-w64-x86_64-autotools
+
+      - name: Fix the include bug on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: cp /usr/include/FlexLexer.h include/
+
+      - name: Build
+        run: |
+          export CCACHE_DIR=$PWD/$CCACHE_DIR_NAME
+          autoconf
+          ./configure --prefix $PWD/$BUILD_DIR_NAME
+          make -j `nproc`
+          make install
+          ccache -s
+      
+      - id: prepare-artifacts
+        name: Prepare artifacts
+        run: |
+          mv ${{ env.BUILD_DIR_NAME }}/share/verilator .
+          rm ${{ env.BUILD_DIR_NAME }}/bin/verilator_bin_dbg*
+          mv ${{ env.BUILD_DIR_NAME }}/bin/* verilator/bin
+          tar -cvf verilator.tar verilator
+          echo "VERILATOR_ARTIFACT=${{ env.VERILATOR_ARTIFACT_NAME }}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.VERILATOR_ARTIFACT_NAME }}
+          path: verilator.tar

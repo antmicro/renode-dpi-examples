@@ -1,0 +1,146 @@
+name: Run sample
+
+on:
+  workflow_call:
+    inputs:
+      sample:
+        required: true
+        type: string
+      custom_artifact:
+        required: false
+        type: boolean
+      custom_cmake_args:
+        required: false
+        type: string
+      custom_robot_args:
+        required: false
+        type: string
+
+      runner:
+        required: true
+        type: string
+      renode_url:
+        required: true
+        type: string
+      verilator_artifact:
+        required: true
+        type: string
+
+env:
+  ARTIFACTS_PREFIX: renode-dpi-
+
+jobs:
+  run-sample:
+    name: Run example
+    runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      SAMPLE_NAME: ${{ inputs.sample }}
+      SAMPLE_DIR: ${{ github.workspace }}/samples/${{ inputs.sample }}
+      ARTIFACTS_DIR_NAME: artifacts
+      CC: ${{ inputs.runner == 'ubuntu-20.04' && 'gcc-10' || 'gcc' }}
+      CXX: ${{ inputs.runner == 'ubuntu-20.04' && 'g++-10' || 'g++' }}
+
+    steps: 
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        id: python-setup
+        with:
+          python-version: '3.11'
+      
+      - name: Download the Verilator artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.verilator_artifact }}
+          path: ${{ github.workspace }}
+
+      - name: Untar the Verilator artifact
+        run: tar -xf verilator.tar
+
+      - name: Download Renode
+        run: curl -sSLO ${{ inputs.renode_url }}
+      - name: Unpack Renode for Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          mkdir renode
+          tar xf renode*.tar.gz --strip-components 1 -C renode
+      - name: Unpack Renode for Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          unzip renode*.zip
+          rm renode*.zip
+          mv renode_* renode
+
+      - name: Download a custom build of a sample
+        if: ${{ inputs.custom_artifact }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.SAMPLE_NAME }}
+          path: ${{ env.SAMPLE_DIR }}
+
+      - name: Prepare the sample and the artifacts directory
+        run: |
+          mkdir -p samples/${{ env.SAMPLE_NAME }}/build
+          mkdir ${{ env.ARTIFACTS_DIR_NAME }}
+
+      - name: Build the sample on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          cd ${{ env.SAMPLE_DIR }}/build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator ${{ inputs.custom_cmake_args }}
+          make
+          cp verilated ${{ github.workspace }}/${{ env.ARTIFACTS_DIR_NAME }}/
+        
+      - name: Build the sample on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: powershell
+        run: |
+          cd ${{ env.SAMPLE_DIR }}\build
+          cmake.exe .. -G "MinGW Makefiles" -DUSER_RENODE_DIR="..\..\..\renode" -DUSER_VERILATOR_DIR="..\..\..\verilator" ${{ inputs.custom_cmake_args }}
+          mingw32-make.exe
+          cp verilated.exe ${{ github.workspace }}\${{ env.ARTIFACTS_DIR_NAME }}\
+
+      - name: Run tests on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: >
+          renode/renode-test
+          ${{ env.SAMPLE_DIR}}/test*.robot
+          --include verilator
+          ${{ inputs.custom_robot_args }}
+
+      - name: Run tests on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: powershell
+        run: >
+          renode\bin\renode-test.bat
+          (Get-ChildItem ${{ env.SAMPLE_DIR }}\test*.robot)
+          --include verilator
+          --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
+          ${{ inputs.custom_robot_args }}
+
+      - name: Copy the output of test
+        if: always()
+        run: |
+          mv log.html ${{ env.ARTIFACTS_DIR_NAME }}/ || true
+          mv report.html ${{ env.ARTIFACTS_DIR_NAME }}/ || true
+          mv robot_output.xml ${{ env.ARTIFACTS_DIR_NAME }}/ || true
+          mv logs ${{ env.ARTIFACTS_DIR_NAME }}/ || true
+          ls -r ${{ env.ARTIFACTS_DIR_NAME }} || true
+
+      - name: Prepare artifacts
+        if: always()
+        run: |
+          cd ${{ env.ARTIFACTS_DIR_NAME }}  
+          for file in * ; do mv -- "$file" "${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME}}-$file" ; done
+          ls -r .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-${{ runner.os }}-${{ runner.arch }}
+          path: ${{ env.ARTIFACTS_DIR_NAME }}/*
