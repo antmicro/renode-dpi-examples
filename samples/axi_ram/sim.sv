@@ -15,7 +15,9 @@ module sim;
 
   logic clk = 1;
 
-  renode renode (
+  renode # (
+      .BusControllersCount(1)
+  ) renode (
       .clk(clk),
       .interrupts('0)
   );

@@ -18,6 +18,7 @@ module sim;
   logic [1:0] interrupts;
 
   renode #(
+      .BusControllersCount(1),
       .BusPeripheralsCount(1),
       .InterruptsCount(2)
   ) renode (
