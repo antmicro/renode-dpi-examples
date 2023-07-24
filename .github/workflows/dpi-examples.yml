@@ -105,6 +105,18 @@ jobs:
       matrix:
         sample:
           - directory_name: axi_ram
+          - directory_name: axi_ram
+            custom_cmake_args: -DAXI_DATA_WIDTH=64
+            custom_robot_args: --variable=BUS_WIDTH:64
+          - directory_name: axi_ram
+            custom_cmake_args: -DAXI_DATA_WIDTH=32
+            custom_robot_args: --variable=BUS_WIDTH:32
+          - directory_name: axi_ram
+            custom_cmake_args: -DAXI_DATA_WIDTH=16
+            custom_robot_args: --variable=BUS_WIDTH:16
+          - directory_name: axi_ram
+            custom_cmake_args: -DAXI_DATA_WIDTH=8
+            custom_robot_args: --variable=BUS_WIDTH:8
           - directory_name: axi_fastvdma
         config:
           - runner: ubuntu-20.04

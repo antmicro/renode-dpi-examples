@@ -8,6 +8,7 @@
 `timescale 1ns / 1ps
 
 module sim;
+  parameter int unsigned AXIDataWidth = 64;
   parameter int ClockPeriod = 100;
   parameter int ReceiverPort = 0;
   parameter int SenderPort = 0;
@@ -22,7 +23,7 @@ module sim;
       .interrupts('0)
   );
 
-  renode_axi_if #(.AddressWidth(20)) axi (clk);
+  renode_axi_if #(.AddressWidth(20), .DataWidth(AXIDataWidth)) axi (clk);
   renode_axi_manager renode_axi_manager (
       .bus(axi),
       .connection(renode.bus_controller)
@@ -42,7 +43,7 @@ module sim;
 
   always #(ClockPeriod / 2) clk = ~clk;
 
-  axi_ram dut (
+  axi_ram #(.DATA_WIDTH(AXIDataWidth)) dut (
       .clk(clk),
       .rst(~axi.areset_n),
       .s_axi_awid(axi.awid),
