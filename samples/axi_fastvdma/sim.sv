@@ -8,6 +8,7 @@
 `timescale 1ns / 1ps
 
 module sim;
+  parameter int unsigned AXIDataWidth = 32;
   parameter int ClockPeriod = 100;
   parameter int ReceiverPort = 0;
   parameter int SenderPort = 0;
@@ -30,7 +31,7 @@ module sim;
       .connection(renode.bus_controller)
   );
 
-  renode_axi_if #(.TransactionIdWidth(4)) axi_data (clk);
+  renode_axi_if #(.DataWidth(AXIDataWidth), .TransactionIdWidth(4)) axi_data (clk);
   renode_axi_subordinate renode_axi_subordinate (
       .bus(axi_data),
       .connection(renode.bus_peripheral)

@@ -33,9 +33,73 @@ jobs:
       verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.010' }}
 
 
+  build-fastvdma-sample:
+    name: Build FastVDMA sample
+    strategy:
+      matrix:
+        bus_width: [8, 16, 32, 64]
+    runs-on: ubuntu-latest
+
+    env:
+      FASTVDMA_GIT_REF: 0172db9fb0e3873af418941ecc0151241666350a
+      FASTVDMA_DIR: ${{ github.workspace }}/fastvdma
+      SAMPLE_DIR: ${{ github.workspace }}/samples/axi_fastvdma
+      CUSTOM_SAMPLE_NAME: axi_fastvdma-${{ matrix.bus_width }}
+      CUSTOM_SAMPLE_DIR: ${{ github.workspace }}/samples/axi_fastvdma-${{ matrix.bus_width }}
+
+    steps:
+      - name: Checkout the renode-dpi-examples repository
+        uses: actions/checkout@v3
+
+      - name: Clone the FastVDMA repository
+        uses: actions/checkout@v3
+        with:
+          repository: antmicro/fastvdma
+          ref: ${{ env.FASTVDMA_GIT_REF }}
+          path: fastvdma
+
+      - name: Add the Scala SBT packages repository
+        run: |
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+          echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+          curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+          
+      - name: Install dependencies
+        run: >
+          sudo apt update 
+          && sudo apt-get install -y --no-install-recommends
+          default-jdk
+          default-jre
+          sbt
+      
+      - name: Build HDL
+        run: |
+          cp -R ${{ env.SAMPLE_DIR }} ${{ env.CUSTOM_SAMPLE_DIR}}
+          CONFIG_FILE=${{ env.CUSTOM_SAMPLE_DIR }}/config_${{ matrix.bus_width }}.json
+          jq --argjson width ${{ matrix.bus_width }} \
+          '.readDataWidth = $width | .writeDataWidth = $width' \
+          ${{ env.SAMPLE_DIR }}/config_base.json > $CONFIG_FILE
+
+          cd ${{ env.FASTVDMA_DIR }}
+          make verilog CONFIG_FILE=$CONFIG_FILE
+          cp DMATop*.v ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
+          sed -i 's/DMATopAXI_AXIL_AXI/DMATop/' ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
+      
+      - name: Clean up the custom sample dir
+        run: |
+          cd ${{ env.CUSTOM_SAMPLE_DIR }}
+          rm *_linux.*
+          rm config_base.json
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.CUSTOM_SAMPLE_NAME }}
+          path: ${{ env.CUSTOM_SAMPLE_DIR }}
+
   run-sample:
     name: Run sample
-    needs: [build-verilator-linux, build-verilator-windows]
+    needs: [build-fastvdma-sample, build-verilator-linux, build-verilator-windows]
     strategy:
       fail-fast: false
       matrix:
