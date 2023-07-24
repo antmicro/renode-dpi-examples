@@ -75,6 +75,13 @@ jobs:
           rm renode*.zip
           mv renode_* renode
 
+      - name: Patch Renode on Windows 
+        if: ${{ runner.os == 'Windows' }}
+        run: sed -i 's/countdown = 120/countdown = 240/' renode/tests/robot_tests_provider.py
+      
+      - name: Install Robot framework dependencies
+        run: python3 -m pip install -r renode/tests/requirements.txt
+
       - name: Download a custom build of a sample
         if: ${{ inputs.custom_artifact }}
         uses: actions/download-artifact@v3
