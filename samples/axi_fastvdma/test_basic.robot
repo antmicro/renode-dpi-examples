@@ -31,6 +31,12 @@ Transaction Should Finish
     ${val}=                         Execute Command  ${DMA_PERIPHERAL} ReadDoubleWord 0x4
     Should Contain                  ${val}  0x00000000
 
+Make Repeated DMA Writes
+    # The purpose of this keyword is to make sure a timeout isn't triggered.
+    FOR  ${i}  IN RANGE  100
+        Execute Command                 ${DMA_PERIPHERAL} WriteDoubleWord 0x0 0
+    END
+
 Configure DMA
     [Arguments]                     ${source_address}  ${destination_address}  ${transaction_length}
     # Reader start address
@@ -109,6 +115,18 @@ Should Connect Verilator
 Should Connect Questa
     [Tags]                          questa
     Should Connect To Questa And Reset Peripheral  ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
+
+Should Write DMA Registers In Verilator
+    [Tags]                          verilator
+    Create Machine
+    Connect To Verilator            ${DMA_PERIPHERAL}  ${VERILATED_BINARY}
+    Make Repeated DMA Writes
+
+Should Write DMA Registers In Questa
+    [Tags]                          questa
+    Create Machine
+    Connect To Questa               ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+    Make Repeated DMA Writes
 
 Should Run DMA Transaction In Verilator
     [Tags]                          verilator
