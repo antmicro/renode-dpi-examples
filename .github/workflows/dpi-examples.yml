@@ -134,6 +134,9 @@ jobs:
             custom_artifact: true
             custom_cmake_args: -DAXI_DATA_WIDTH=8
             custom_robot_args: --variable=BUS_WIDTH:8
+          - directory_name: apb3_completer_mem
+          - directory_name: apb3_requester_synth
+          - directory_name: apb3_standalone
         config:
           - runner: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
