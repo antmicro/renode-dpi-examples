@@ -9,7 +9,7 @@ set(SIM_TOP_FILE sim.sv)
 set(SIM_FILES DMATop.v)
 
 # Verilator variables
-set(VERILATOR_CSOURCES sim_main.cpp)
+set(VERILATOR_CSOURCES ../../cpp/sim_main_dpi.cpp)
 set(AXI_DATA_WIDTH 32 CACHE STRING "Width of data channels in the AXI data bus")
 set(VERILATOR_ARGS --timing -GAXIDataWidth=${AXI_DATA_WIDTH})
 
