@@ -144,5 +144,11 @@ You can close the simulation by calling the `quit` command in the Renode Monitor
 It will also finish the HDL simulation.
 
 ## Samples list
-* [RAM](/samples/axi_ram/axi_ram.v) - *AXI4 subordinate*
-* [DMA](/samples/axi_fastvdma/DMATop.v) using [the fastvdma controller](https://github.com/antmicro/fastvdma) - *AXI4-Lite subordinate, AXI4 manager, GPIO*
+
+|                                                 Sample name                                                 |                Function Description                 |
+| :---------------------------------------------------------------------------------------------------------: | :-------------------------------------------------: |
+|                                    [AXI RAM](/samples/axi_ram/axi_ram.v)                                    |                 *AXI4 subordinate*                  |
+| [DMATop](/samples/axi_fastvdma/DMATop.v) ([the FastVDMA controller](https://github.com/antmicro/fastvdma)) |     *AXI4-Lite subordinate, AXI4 manager, GPIO*     |
+|                 [APB3 Completer Memory](/samples/apb3_completer_mem/apb3_completer_mem.sv)                  |                  *APB3 Completer*                   |
+|            [APB3 Requester Synthesizable](/samples/apb3_requester_synth/apb3_requester_synth.sv)            |                  *APB3 Requester*                   |
+|                        [APB3 Standalone Simulation](/samples/apb3_standalone/sim.sv)                        | *APB3 Requester, APB3 Completer, without DPI usage* |
