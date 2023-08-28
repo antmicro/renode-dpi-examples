@@ -1,0 +1,33 @@
+{
+  "signal": [
+    [
+      "Requester",
+      { "name": "pclk", "wave": "P.........." },
+      {
+        "name": "paddr",
+        "wave": "x3...3....x",
+        "data": ["Addr 1", "Addr 2", "Addr 3"]
+      },
+      { "name": "pwrite", "wave": "x1........x" },
+      { "name": "psel", "wave": "x1........x" },
+      { "name": "penable", "wave": "x01..01...x" }
+    ],
+    {},
+    [
+      "Completer",
+      {
+        "name": "pwdata",
+        "wave": "x4...4....x",
+        "data": ["Data 1", "Data 2", "Data 3"]
+      },
+      { "name": "pready", "wave": "0...10...10" }
+    ]
+  ],
+  "config": { "hscale": 2, "skin": "default" },
+
+  "head": {
+    "text": "APB Write Transfers with no idle cycles and with wait states",
+    "tick": 0,
+    "every": 1
+  }
+}

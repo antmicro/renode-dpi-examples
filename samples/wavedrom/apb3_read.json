@@ -1,0 +1,18 @@
+{
+  "signal": [
+    { "name": "pclk", "wave": "P..." },
+    { "name": "paddr", "wave": "x3.x", "data": ["Addr 1"] },
+    { "name": "pwrite", "wave": "x0.x" },
+    { "name": "psel", "wave": "x1.x" },
+    { "name": "penable", "wave": "x01x" },
+    { "name": "prdata", "wave": "xx4x", "data": ["Data 1"] },
+    { "name": "pready", "wave": "0.10" }
+  ],
+  "config": { "hscale": 2, "skin": "default" },
+
+  "head": {
+    "text": "APB Single Read Transfer",
+    "tick": 0,
+    "every": 1
+  }
+}
