@@ -21,6 +21,48 @@ on:
         type: string
 
 jobs:
+  run-prebuilt-sample:
+    name: "Run prebuilt sample"
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - runner: ubuntu-20.04
+            renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
+          - runner: windows-latest
+            renode_url: ${{ inputs.renode_url_windows || 'https://builds.renode.io/renode-latest.zip' }}
+    runs-on: ${{ matrix.config.runner }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      RENODE_ARGS: -e "emulation RunFor \"20\"; quit"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Renode
+        run: curl -sSLO ${{ matrix.config.renode_url }}
+      - name: Unpack Renode for Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          mkdir renode
+          tar xf renode*.tar.gz --strip-components 1 -C renode
+      - name: Unpack Renode for Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          unzip renode*.zip
+          rm renode*.zip
+          mv renode_* renode
+
+      - name: Run Renode on Linux
+        if: ${{ runner.os != 'Windows' }}
+        run: renode/renode ${{ env.RENODE_ARGS }} samples/axi_fastvdma_prebuilt/platform.resc
+      - name: Run Renode on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: cmd
+        run: renode\bin\Renode.exe ${{ env.RENODE_ARGS }} samples\axi_fastvdma_prebuilt\platform.resc
+    
   build-verilator-linux:
     uses: ./.github/workflows/build-verilator.yml
     with:

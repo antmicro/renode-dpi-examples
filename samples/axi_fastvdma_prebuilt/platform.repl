@@ -1,0 +1,12 @@
+using "platforms/boards/zedboard.repl"
+
+dma: Verilated.VerilatedPeripheral @ sysbus <0x43c20000, +0x100>
+    maxWidth: 32
+    // Changing frequency to a non-default value breaks timings in a trace.
+    // But it improves a performance of Linux simulation.
+    frequency: 1000000
+    limitBuffer: 1000
+    timeout: 20000
+    numberOfInterrupts: 2
+    address: "127.0.0.1"
+    1 -> gic@31
