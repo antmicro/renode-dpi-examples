@@ -4,6 +4,11 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Type of build" FORCE)
+  message(STATUS "Setting build type to ${CMAKE_BUILD_TYPE} as none was specified")
+endif()
+
 if(NOT USER_RENODE_DIR AND DEFINED ENV{RENODE_ROOT})
   message(STATUS "Using RENODE_ROOT from environment as USER_RENODE_DIR")
   set(USER_RENODE_DIR $ENV{RENODE_ROOT} CACHE PATH "Absolute (!) path to Renode root directory or any other that contains VerilatorIntegrationLibrary.")

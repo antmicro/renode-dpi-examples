@@ -99,7 +99,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: |
           cd ${{ env.SAMPLE_DIR }}/build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator ${{ inputs.custom_cmake_args }}
+          cmake .. -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator ${{ inputs.custom_cmake_args }}
           make
           cp verilated ${{ github.workspace }}/${{ env.ARTIFACTS_DIR_NAME }}/
         
