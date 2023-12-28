@@ -179,6 +179,7 @@ jobs:
           - directory_name: apb3_completer_mem
           - directory_name: apb3_requester_synth
           - directory_name: apb3_standalone
+          - directory_name: ahb_mem
         config:
           - runner: ubuntu-20.04
             renode_url: ${{ inputs.renode_url_linux || 'https://builds.renode.io/renode-latest.linux-portable.tar.gz' }}
