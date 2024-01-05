@@ -67,12 +67,12 @@ jobs:
     uses: ./.github/workflows/build-verilator.yml
     with:
       runner: ubuntu-20.04
-      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.010' }}
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
   build-verilator-windows:
     uses: ./.github/workflows/build-verilator.yml
     with:
       runner: windows-latest
-      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.010' }}
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
 
 
   build-fastvdma-sample:
