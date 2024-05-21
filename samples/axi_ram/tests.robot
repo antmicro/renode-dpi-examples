@@ -14,6 +14,7 @@ ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
 ${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
 ${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
+${XCELIUM_WORK_LIBRARY}             ${BUILD_DIRECTORY}/work_xcelium
 
 
 *** Keywords ***
@@ -49,6 +50,11 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Questa And Reset Peripheral  ${MEMORY_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
 
+Should Connect Xcelium
+    [Tags]                          xcelium
+    Should Connect To Xcelium And Reset Peripheral  ${MEMORY_PERIPHERAL}  ${XCELIUM_WORK_LIBRARY}  Create Machine
+  
+
 Should Read And Write Memory In Verilator
     [Tags]                          verilator
     Create Machine
@@ -61,6 +67,14 @@ Should Read And Write Memory In Questa
     [Tags]                          questa
     Create Machine
     Connect To Questa               ${MEMORY_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+
+    Start Emulation
+    Test Read And Write Memory
+
+Should Read And Write Memory In Xcelium
+    [Tags]                          xcelium
+    Create Machine
+    Connect To Xcelium              ${MEMORY_PERIPHERAL}  ${XCELIUM_WORK_LIBRARY}
 
     Start Emulation
     Test Read And Write Memory

@@ -186,3 +186,24 @@ else()
   )
   add_custom_target(questa-build ALL DEPENDS questa_optimized)
 endif()
+
+### 
+### Prepare Xcelium target
+###
+set(USER_XCELIUM_PATH CACHE STRING "Path to Xcelium bin directory")
+find_program(XCELIUM_XRUN xrun ${USER_XCELIUM_PATH})
+
+set(USER_XCELIUM_WORKDIR_NAME work_xcelium CACHE STRING "Name of Xcelium workdir")
+set(USER_XCELIUM_ARGS ${XCELIUM_ARGS} CACHE STRING "Extra arguments/switches used for build and run Xcelium commands (vlog, vopt, vsim)")
+separate_arguments(USER_XCELIUM_ARGS)
+set(FINAL_XCELIUM_ARGS ${USER_XCELIUM_ARGS})
+list(APPEND FINAL_XCELIUM_ARGS -xmlibdirname ${USER_XCELIUM_WORKDIR_NAME})
+
+if(NOT XCELIUM_XRUN)
+  message(NOTICE "There's no Xcelium available. This target will be ignored.")
+else()
+  add_custom_command(OUTPUT xcelium_compiled
+    COMMAND ${XCELIUM_XRUN} ${FINAL_XCELIUM_ARGS} ${FINAL_SIM_FILES} ${RENODE_SOURCES} "+incdir+${RENODE_HDL_LIBRARY}"
+  )
+  add_custom_target(xcelium-build ALL DEPENDS xcelium_compiled)
+endif()

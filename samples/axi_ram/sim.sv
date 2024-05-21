@@ -22,6 +22,9 @@ module sim;
   parameter int SenderPort = 0;
   parameter string Address = "";
 
+  string address;
+  int receiver_port;
+  int sender_port;
   logic clk = 1;
 
   renode # (
@@ -38,7 +41,25 @@ module sim;
   );
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    if ($value$plusargs("Address=%s", address)) begin
+      $display("Address=%s", address);
+    end else begin
+      address = Address;
+    end
+
+    if ($value$plusargs("ReceiverPort=%d", receiver_port)) begin
+      $display("ReceiverPort=%0d", receiver_port);
+    end else begin
+      receiver_port = ReceiverPort;
+    end
+
+    if ($value$plusargs("SenderPort=%d", sender_port)) begin
+      $display("SenderPort=%0d", sender_port);
+    end else begin
+      sender_port = SenderPort;
+    end
+
+    if (address != "") renode.connection.connect(receiver_port, sender_port, address);
     renode.reset();
   end
 
