@@ -15,7 +15,7 @@ set(SIM_FILES
 
 # Verilator variables
 set(VERILATOR_CSOURCES ../../cpp/sim_main_dpi.cpp)
-set(VERILATOR_ARGS --timing)
+set(VERILATOR_ARGS --timing --assert)
 
 # Questa variables
 set(QUESTA_ARGS "")
