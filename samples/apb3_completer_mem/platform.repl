@@ -1,5 +1,6 @@
 mem: Verilated.VerilatedPeripheral @ sysbus <0x0, +0x10000>
-    maxWidth: 32
+    // Note: QuadWord accesses will be truncated to the APB3 bus width (32-bits in this example)
+    maxWidth: 64 
     limitBuffer: 1000000
     timeout: 10000
     address: "127.0.0.1"
