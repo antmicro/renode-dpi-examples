@@ -28,6 +28,14 @@ Test Read And Write Memory
         END
     END
 
+Test Return Zero On Invalid QuadWord Access
+    Execute Command                 ${MEMORY_PERIPHERAL} WriteQuadWord 0x0 0xffffffffffffffff
+    Should Peripheral Contain       ${MEMORY_PERIPHERAL}  QuadWord  0x0  0000000000000000
+
+Test Trivial Access
+    Write To Peripheral             ${MEMORY_PERIPHERAL}  DoubleWord  0x0  ${TEST_DATA}  4
+    Should Peripheral Contain       ${MEMORY_PERIPHERAL}  DoubleWord  0x0  ${TEST_DATA}  4
+
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
@@ -52,3 +60,21 @@ Should Read And Write Memory In Questa
 
     Start Emulation
     Test Read And Write Memory
+
+Should Return Zero on Invalid Access In Verilator
+    [Tags]                          verilator
+    Create Machine
+    Connect To Verilator            ${MEMORY_PERIPHERAL}  ${VERILATED_BINARY}
+
+    Start Emulation
+    Test Return Zero On Invalid QuadWord Access
+    Test Trivial Access
+
+Should Return Zero on Invalid Access In Questa
+    [Tags]                          questa
+    Create Machine
+    Connect To Questa               ${MEMORY_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+
+    Start Emulation
+    Test Return Zero On Invalid QuadWord Access
+    Test Trivial Access
