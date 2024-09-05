@@ -14,8 +14,11 @@ Get Width Of Access Type
     END
 
 Get Addresses For Data
-    [Arguments]                     ${data}  ${access_width}
-    ${range}=                       Evaluate  range(0, len($data), int(${access_width}))
+    [Arguments]                     ${data}  ${access_width}  ${address_stride}=None
+
+    ${address_stride}               Set Variable If  ${address_stride} == None  int(${access_width})  ${address_stride}
+
+    ${range}=                       Evaluate  range(0, len($data), ${address_stride})
     RETURN                          ${range}
 
 Get Value From Bytes
@@ -44,11 +47,11 @@ Should Peripheral Contain At Address
     Should Be Equal                 ${result_stripped}  ${value}
 
 Loop Keyword Over Peripheral
-    [Arguments]                     ${keyword}  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}
+    [Arguments]                     ${keyword}  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}  ${address_stride}=None
 
     ${access_width}=                Get Width Of Access Type  ${access_type}
     ${data_bytes}=                  Evaluate  bytearray.fromhex("${data_hex}")
-    ${byte_addresses}=              Get Addresses For Data  ${data_bytes}  ${access_width}
+    ${byte_addresses}=              Get Addresses For Data  ${data_bytes}  ${access_width}  ${address_stride}
 
     FOR  ${byte_addr}  IN  @{byte_addresses}
         ${address}=                     Evaluate  hex(${address_start} + ${byte_addr})
@@ -57,9 +60,9 @@ Loop Keyword Over Peripheral
     END
 
 Write To Peripheral
-    [Arguments]                     ${peripheral}  ${access_type}  ${address_start}  ${data_hex}
-    Loop Keyword Over Peripheral    Simple Write To Peripheral  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}
+    [Arguments]                     ${peripheral}  ${access_type}  ${address_start}  ${data_hex}  ${address_stride}=None
+    Loop Keyword Over Peripheral    Simple Write To Peripheral  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}  ${address_stride}
 
 Should Peripheral Contain
-    [Arguments]                     ${peripheral}  ${access_type}  ${address_start}  ${data_hex}
-    Loop Keyword Over Peripheral    Should Peripheral Contain At Address  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}
+    [Arguments]                     ${peripheral}  ${access_type}  ${address_start}  ${data_hex}  ${address_stride}=None
+    Loop Keyword Over Peripheral    Should Peripheral Contain At Address  ${peripheral}  ${access_type}  ${address_start}  ${data_hex}  ${address_stride}

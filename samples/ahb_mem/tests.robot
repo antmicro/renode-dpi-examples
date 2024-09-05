@@ -19,12 +19,12 @@ Create Machine
     Execute Command                 include @${PLATFORM}
 
 Test Read And Write Memory
-    ${access_types}=                Create List  DoubleWord
+    ${access_types}=                Create List  DoubleWord  Word  Byte
 
     FOR  ${write_access_type}  IN  @{access_types}
-        Write To Peripheral             ${MEMORY_PERIPHERAL}  ${write_access_type}  0x0  ${TEST_DATA}
+        Write To Peripheral             ${MEMORY_PERIPHERAL}  ${write_access_type}  0x0  ${TEST_DATA}  4
         FOR  ${read_access_type}  IN  @{access_types}
-            Should Peripheral Contain       ${MEMORY_PERIPHERAL}  ${read_access_type}  0x0  ${TEST_DATA}
+            Should Peripheral Contain       ${MEMORY_PERIPHERAL}  ${read_access_type}  0x0  ${TEST_DATA}  4
         END
     END
 
