@@ -173,6 +173,7 @@ It will also finish the HDL simulation.
 | [DMATop](/samples/axi_fastvdma/DMATop.v) ([the FastVDMA controller](https://github.com/antmicro/fastvdma))  |     *AXI4-Lite Subordinate, AXI4 Manager, GPIO*     |
 |                                   [AHB Memory](/samples/ahb_mem/mem_ahb.v)                                  |                 *AHB Subordinate*                   |
 |                                 [Simple AHB DMA](/samples/ahb_dma/dma_ahb_simple.v)                         |       *AHB Subordinate, AHB Manager, GPIO*          |
+|                                 [Simple AHB Manager](/samples/ahb_simple_manager/ahb_manager_synth.sv)      |                   *AHB Manager*                     |
 |                 [APB3 Completer Memory](/samples/apb3_completer_mem/apb3_completer_mem.sv)                  |                  *APB3 Completer*                   |
 |            [APB3 Requester Synthesizable](/samples/apb3_requester_synth/apb3_requester_synth.sv)            |                  *APB3 Requester*                   |
 |                        [APB3 Standalone Simulation](/samples/apb3_standalone/sim.sv)                        | *APB3 Requester, APB3 Completer, without DPI usage* |

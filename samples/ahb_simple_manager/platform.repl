@@ -1,0 +1,8 @@
+ahb_subordinate: Verilated.VerilatedPeripheral @ sysbus <0x10000000, +0x100>
+    maxWidth: 32
+    limitBuffer: 1000000
+    timeout: 5000
+    address: "127.0.0.1"
+
+mem: Memory.MappedMemory @ sysbus 0x00001000
+    size: 0x00003000

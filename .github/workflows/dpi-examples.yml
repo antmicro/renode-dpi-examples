@@ -165,6 +165,7 @@ jobs:
           - directory_name: apb3_standalone
           - directory_name: ahb_mem
           - directory_name: ahb_dma
+          - directory_name: ahb_simple_manager
         config:
           - runner: ubuntu-20.04
             verilator_artifact: ${{ needs.build-verilator-linux.outputs.verilator_artifact }}
