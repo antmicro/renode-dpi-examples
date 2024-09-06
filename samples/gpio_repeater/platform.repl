@@ -1,0 +1,17 @@
+repeater: Verilated.VerilatedPeripheral @ sysbus <0x100, +0x4>
+    address: "127.0.0.1"
+    timeout: 100000
+    maxWidth: 64
+    numberOfInterrupts: 2
+    0 -> led0@0
+    1 -> led1@0
+
+button0: Miscellaneous.Button @ sysbus
+    -> repeater@0
+
+button1: Miscellaneous.Button @ sysbus
+    -> repeater@1
+
+led0: Miscellaneous.LED @ sysbus
+
+led1: Miscellaneous.LED @ sysbus
