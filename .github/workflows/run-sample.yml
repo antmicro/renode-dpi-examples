@@ -19,10 +19,13 @@ on:
       runner:
         required: true
         type: string
-      renode_url:
+      verilator_artifact:
         required: true
         type: string
-      verilator_artifact:
+      renode_git_repo:
+        required: true
+        type: string
+      renode_git_ref:
         required: true
         type: string
 
@@ -62,27 +65,16 @@ jobs:
       - name: Untar the Verilator artifact
         run: tar -xf verilator.tar
 
-      - name: Download Renode
-        run: curl -sSLO ${{ inputs.renode_url }}
-      - name: Unpack Renode for Linux
-        if: ${{ runner.os != 'Windows' }}
-        run: |
-          mkdir renode
-          tar xf renode*.tar.gz --strip-components 1 -C renode
-      - name: Unpack Renode for Windows
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          unzip renode*.zip
-          rm renode*.zip
-          mv renode_* renode
+      - name: Build Renode
+        uses: ./.github/build-renode
+        with:
+          renode_git_repo: ${{ inputs.renode_git_repo }}
+          renode_git_ref: ${{ inputs.renode_git_ref }}
 
       - name: Patch Renode on Windows 
         if: ${{ runner.os == 'Windows' }}
-        run: sed -i 's/countdown = 120/countdown = 240/' renode/tests/robot_tests_provider.py
+        run: sed -i 's/countdown = 120/countdown = 240/' "$RENODE_ROOT/tests/robot_tests_provider.py"
       
-      - name: Install Robot framework dependencies
-        run: python3 -m pip install -r renode/tests/requirements.txt
-
       - name: Download a custom build of a sample
         if: ${{ inputs.custom_artifact }}
         uses: actions/download-artifact@v3
@@ -99,7 +91,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: |
           cd ${{ env.SAMPLE_DIR }}/build
-          cmake .. -DUSER_RENODE_DIR=../../../renode -DUSER_VERILATOR_DIR=../../../verilator ${{ inputs.custom_cmake_args }}
+          cmake .. -DUSER_VERILATOR_DIR=../../../verilator ${{ inputs.custom_cmake_args }}
           make
           cp verilated ${{ github.workspace }}/${{ env.ARTIFACTS_DIR_NAME }}/
         
@@ -108,14 +100,14 @@ jobs:
         shell: powershell
         run: |
           cd ${{ env.SAMPLE_DIR }}\build
-          cmake.exe .. -G "MinGW Makefiles" -DUSER_RENODE_DIR="..\..\..\renode" -DUSER_VERILATOR_DIR="..\..\..\verilator" ${{ inputs.custom_cmake_args }}
+          cmake.exe .. -G "MinGW Makefiles" -DUSER_VERILATOR_DIR="..\..\..\verilator" ${{ inputs.custom_cmake_args }}
           mingw32-make.exe
           cp verilated.exe ${{ github.workspace }}\${{ env.ARTIFACTS_DIR_NAME }}\
 
       - name: Run tests on Linux
         if: ${{ runner.os != 'Windows' }}
         run: >
-          renode/renode-test
+          renode-test
           ${{ env.SAMPLE_DIR}}/test*.robot
           --include verilator
           ${{ inputs.custom_robot_args }}
@@ -124,7 +116,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         shell: powershell
         run: >
-          renode\bin\renode-test.bat
+          renode-test
           (Get-ChildItem ${{ env.SAMPLE_DIR }}\test*.robot)
           --include verilator
           --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
