@@ -22,7 +22,7 @@ on:
 
 jobs:
   run-prebuilt-sample:
-    name: "Run prebuilt sample"
+    name: "Build Renode and run a prebuilt sample"
     strategy:
       fail-fast: false
       matrix:
