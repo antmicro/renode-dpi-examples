@@ -28,10 +28,11 @@ module sim;
   renode #(
       .BusControllersCount(1),
       .BusPeripheralsCount(1),
-      .InterruptsCount(2)
+      .RenodeInputsCount(2)
   ) renode (
       .clk(clk),
-      .interrupts(interrupts)
+      .renode_inputs(interrupts),
+      .renode_outputs()
   );
 
   renode_axi_if axi_control (clk);

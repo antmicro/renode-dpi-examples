@@ -29,7 +29,8 @@ module sim;
       .BusPeripheralsCount(1)
   ) renode (
       .clk(clk),
-      .interrupts(interrupt)
+      .renode_inputs(interrupt),
+      .renode_outputs()
   );
 
   renode_ahb_if #(
