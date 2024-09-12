@@ -67,7 +67,7 @@ Use command below to build Verilator.
 sudo apt-get update && sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlibc zlib1g zlib1g-dev
 git clone https://github.com/verilator/verilator.git
 cd verilator
-git checkout v5.010
+git checkout v5.018
 autoconf
 ./configure
 make -j `nproc`
