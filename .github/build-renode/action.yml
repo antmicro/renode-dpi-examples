@@ -15,7 +15,8 @@ runs:
     - id: get-renode-rev
       run: |
         git clone "${{ inputs.renode_git_repo }}" renode
-        rev="$(git -C renode rev-parse "${{ inputs.renode_git_ref }}")"
+        git -C renode checkout "${{ inputs.renode_git_ref }}" --
+        rev="$(git -C renode rev-parse @)"
         echo "renode-rev="$rev"" >> "$GITHUB_OUTPUT"
         mv renode "renode-$rev-cloned"
       shell: bash
@@ -35,7 +36,6 @@ runs:
         mv renode-${{ steps.get-renode-rev.outputs.renode-rev }}-cloned renode-${{ steps.get-renode-rev.outputs.renode-rev }}
         cd renode-${{ steps.get-renode-rev.outputs.renode-rev }}
         echo Building "${{ inputs.renode_git_repo }}" at "${{ inputs.renode_git_ref }} (${{ steps.get-renode-rev.outputs.renode-rev }})"
-        git checkout "${{ inputs.renode_git_ref }}"
         git submodule update --init --recursive --depth=1
       shell: bash
       working-directory: ${{ runner.temp }}
