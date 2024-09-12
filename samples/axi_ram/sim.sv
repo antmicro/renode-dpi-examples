@@ -28,7 +28,8 @@ module sim;
       .BusControllersCount(1)
   ) renode (
       .clk(clk),
-      .interrupts('0)
+      .renode_inputs('0),
+      .renode_outputs()
   );
 
   renode_axi_if #(.AddressWidth(20), .DataWidth(AXIDataWidth)) axi (clk);

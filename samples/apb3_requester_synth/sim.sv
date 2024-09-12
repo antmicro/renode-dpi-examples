@@ -31,7 +31,8 @@ module sim;
       .BusPeripheralsCount(1)
   ) renode (
       .clk(clk),
-      .interrupts('0)
+      .renode_inputs('0),
+      .renode_outputs()
   );
 
   renode_apb3_if #(
