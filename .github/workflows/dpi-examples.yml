@@ -39,10 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/build-renode
+      - uses: antmicro/renode-test-action@v4
         with:
-          renode_git_repo: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
-          renode_git_ref: ${{ inputs.renode_git_ref || 'master' }}
+          renode-repository: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
+          renode-revision: ${{ inputs.renode_git_ref || 'master' }}
 
       - name: Run Renode
         run: renode ${{ env.RENODE_ARGS }} samples/axi_fastvdma_prebuilt/platform.resc
