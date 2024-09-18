@@ -17,5 +17,8 @@ set(VERILATOR_ARGS -Wno-WIDTH -Wno-CASEINCOMPLETE -Wno-UNSIGNED --timing -GAXIDa
 set(QUESTA_ARGS "")
 set(QUESTA_OPTIMIZATION_ARGS -floatparameters+ReceiverPort+SenderPort+Address -GAXIDataWidth=${AXI_DATA_WIDTH})
 
+# Xcelium variables
+set(XCELIUM_ARGS -sv -elaborate -defparam sim.AXIDataWidth=${AXI_DATA_WIDTH} -top ${SIM_TOP})
+
 # CMake file doing the hard job
 include(../../cmake/build-cosimulation.cmake)
