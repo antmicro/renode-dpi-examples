@@ -43,7 +43,7 @@ runs:
     - name: Install dependencies (Linux)
       run: |
         sudo apt-get -qqy update
-        sudo apt-get -y install --no-install-recommends mono-complete policykit-1 libgtk2.0-dev uml-utilities gtk-sharp2
+        sudo apt-get -y install --no-install-recommends cmake mono-complete policykit-1 libgtk2.0-dev uml-utilities gtk-sharp2
       shell: bash
       if: ${{ runner.os == 'Linux' }}
     - name: Build Renode (Mono)
