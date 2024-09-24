@@ -1,10 +1,9 @@
 *** Settings ***
+Test Teardown                       Run Keywords
+...                                     Test Teardown
+...                                     Terminate And Log
 Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 Resource                            ${CURDIR}/../../robot/access-peripheral-keywords.robot
-Test Teardown                       Run Keywords
-...                                 Test Teardown
-...                                 Terminate And Log
-
 
 *** Variables ***
 ${DUT}                              mem

@@ -1,10 +1,9 @@
 *** Settings ***
+Test Teardown                       Run Keywords
+...                                     Test Teardown
+...                                     Terminate And Log
 Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 Resource                            ${CURDIR}/../../robot/access-peripheral-keywords.robot
-Test Teardown                       Run Keywords
-...                                 Test Teardown
-...                                 Terminate And Log
-
 
 *** Variables ***
 ${BUS_WIDTH}                        32
@@ -70,7 +69,7 @@ Test DMA Transaction
     ${last_byte_offset}=            Set Variable  ${{ int(${BUS_WIDTH}) // 8 * int(${TRANSACTION_LENGTH}) - 1 }}
     Write To Peripheral             sysbus  DoubleWord  ${ADDRESS_SOURCE}  ${TEST_DATA}
     Write To Peripheral             sysbus  Byte  ${{ hex(int(${ADDRESS_SOURCE}) + $last_byte_offset) }}  ${TEST_BYTE}
-    
+
     Configure DMA                   ${ADDRESS_SOURCE}  ${ADDRESS_DESTINATION}  ${TRANSACTION_LENGTH}
     Start DMA Transaction
 

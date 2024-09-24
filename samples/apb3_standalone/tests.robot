@@ -1,9 +1,8 @@
 *** Settings ***
-Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 Test Teardown                       Run Keywords
-...                                 Test Teardown
-...                                 Terminate And Log
-
+...                                     Test Teardown
+...                                     Terminate And Log
+Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 
 *** Variables ***
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
