@@ -20,7 +20,7 @@ module ahb_manager_synth
   input logic HRESETn,
   input logic HREADY,
   output logic [31:0] HADDR,
-  output wire [31:0] HWDATA,
+  output logic [31:0] HWDATA,
   output logic [2:0] HSIZE,
   output logic [1:0] HTRANS,
   output logic HWRITE
