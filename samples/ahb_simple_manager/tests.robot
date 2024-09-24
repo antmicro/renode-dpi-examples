@@ -10,14 +10,18 @@ ${SUBORDINATE_PERIPHERAL}           ahb_subordinate
 
 ${PLATFORM}                         ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
 *** Keywords ***
 Create Machine
     Execute Command                 include @${PLATFORM}
 
-Test Subordinate
+Should Run Subordinate
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Execute Command                 emulation RunFor "0.01"
+
 # The values below are hardcoded in the HDL model of the Manager.
     Should Peripheral Contain       mem  Byte  0x0  12
     Should Peripheral Contain       mem  Word  0x4  5634
@@ -26,24 +30,18 @@ Test Subordinate
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  ${VERILATED_BINARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  Create Machine  Run Verilator
 
 Should Connect Questa
     [Tags]                          questa
-    Should Connect To Questa And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  Create Machine  Run Questa
+
 
 Should Run Subordinate In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${SUBORDINATE_PERIPHERAL}  ${VERILATED_BINARY}
-
-    Execute Command                 emulation RunFor "0.01"
-    Test Subordinate
+    Should Run Subordinate          ${SUBORDINATE_PERIPHERAL}  Run Verilator
 
 Should Run Subordinate In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${SUBORDINATE_PERIPHERAL}  ${VERILATED_BINARY}
+    Should Run Subordinate          ${SUBORDINATE_PERIPHERAL}  Run Questa
 
-    Execute Command                 emulation RunFor '0.01'
-    Test Subordinate

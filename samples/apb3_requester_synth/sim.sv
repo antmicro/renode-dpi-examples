@@ -15,11 +15,10 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module sim;
   parameter int ClockPeriod = 100;
-  parameter int ReceiverPort = 0;
-  parameter int SenderPort = 0;
-  parameter string Address = "";
 
   parameter int APB3BusAddressWidth = 32;
   parameter int APB3BusDataWidth = 32;
@@ -27,9 +26,11 @@ module sim;
   logic clk = 1;
   always #(ClockPeriod / 2) clk = ~clk;
 
+  renode_runtime runtime = new();
   renode #(
       .BusPeripheralsCount(1)
   ) renode (
+      .runtime(runtime),
       .clk(clk),
       .renode_inputs('0),
       .renode_outputs()
@@ -41,8 +42,8 @@ module sim;
   ) apb3 (clk);
 
   renode_apb3_completer renode_apb3_completer (
-      .bus(apb3),
-      .connection(renode.bus_peripheral)
+      .runtime(runtime),
+      .bus(apb3)
   );
 
   // Each transfer takes time:
@@ -54,7 +55,7 @@ module sim;
   int time_transfer = ClockPeriod * 17 * 20; //FIXME: tie to parameters
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    runtime.connect_plus_args();
     dut_requester_synth.mux_select = 1'b0;
     dut_requester_synth.start_n_single = '0;
     dut_requester_synth.start_n_b2b = '0;
@@ -80,7 +81,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Requester: Timeout reached while waiting for a tick response.
     renode.receive_and_handle_message();
-    if (!renode.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   apb3_requester_synth #(

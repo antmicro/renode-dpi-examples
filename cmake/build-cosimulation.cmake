@@ -75,10 +75,8 @@ if(NOT VIL_DIR)
   
   message(STATUS "Looking for Renode VerilatorIntegrationLibrary inside ${USER_RENODE_DIR}...")
   set(VIL_FILE verilator-integration-library.cmake)
-  # Look for the ${VIL_FILE} in the whole ${USER_RENODE_DIR} tree
-  #   (don't use `/*/` as then an additional directory is required between the two)
-  file(GLOB_RECURSE VIL_FOUND ${USER_RENODE_DIR}*/${VIL_FILE})
-  
+  file(GLOB_RECURSE VIL_FOUND ${USER_RENODE_DIR}/*/${VIL_FILE})
+
   list(LENGTH VIL_FOUND VIL_FOUND_N)
   if(${VIL_FOUND_N} EQUAL 1)
     string(REPLACE "/${VIL_FILE}" "" VIL_DIR ${VIL_FOUND})
@@ -86,24 +84,31 @@ if(NOT VIL_DIR)
     string(REGEX REPLACE "/${VIL_FILE}" " " ALL_FOUND ${VIL_FOUND})
     message(FATAL_ERROR "Found more than one directory with VerilatorIntegrationLibrary inside USER_RENODE_DIR. Please choose one of them: ${ALL_FOUND}")
   endif()
-  
+
   if(NOT VIL_DIR OR NOT EXISTS "${VIL_DIR}/${VIL_FILE}")
     message(FATAL_ERROR "Couldn't find valid VerilatorIntegrationLibrary inside USER_RENODE_DIR!")
   endif()
-  
+
   include(${VIL_DIR}/${VIL_FILE})  # sets VIL_VERSION variable
   message(STATUS "Renode VerilatorIntegrationLibrary (version ${VIL_VERSION}) found in ${VIL_DIR}.")
-  
+
   # Save VIL_DIR in cache
   set(VIL_DIR ${VIL_DIR} CACHE INTERNAL "")
 endif()
 
 # Prepare list of Renode DPI Integration files
 set(RENODE_HDL_LIBRARY ${VIL_DIR}/hdl)
+set(RENODE_HDL_INCLUDE_DIRS ${RENODE_HDL_LIBRARY})
+
 file(GLOB RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/imports/*.sv)
-list(APPEND RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/renode.sv)
-file(GLOB_RECURSE RENODE_HDL_MODULES_SOURCES ${RENODE_HDL_LIBRARY}/modules/*.sv)
-list(APPEND RENODE_HDL_SOURCES ${RENODE_HDL_MODULES_SOURCES})
+list(PREPEND RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/renode_pkg.sv)
+
+file(GLOB_RECURSE RENODE_HDL_MODULES LIST_DIRECTORIES true ${RENODE_HDL_LIBRARY}/modules)
+foreach(PATH ${RENODE_HDL_MODULES})
+  if(IS_DIRECTORY ${PATH})
+    list(APPEND RENODE_HDL_DIRECTORIES ${PATH})
+  endif()
+endforeach()
 
 file(GLOB_RECURSE RENODE_SOURCES ${VIL_DIR}/libs/socket-cpp/*.cpp)
 list(APPEND RENODE_SOURCES ${VIL_DIR}/src/communication/socket_channel.cpp)
@@ -112,12 +117,28 @@ list(APPEND RENODE_SOURCES ${VIL_DIR}/src/renode_dpi.cpp)
 if(NOT SIM_TOP OR NOT SIM_TOP_FILE)
   message(FATAL_ERROR "'SIM_TOP' and 'SIM_TOP_FILE' variable have to be set!")
 endif()
-set(ALL_SIM_FILES ${SIM_TOP_FILE})
+set(ALL_SIM_FILES ${RENODE_HDL_SOURCES})
 list(APPEND ALL_SIM_FILES ${SIM_FILES})
-list(APPEND ALL_SIM_FILES ${RENODE_HDL_SOURCES})
+list(APPEND ALL_SIM_FILES ${SIM_TOP_FILE})
 foreach(SIM_FILE ${ALL_SIM_FILES})
   get_filename_component(SIM_FILE ${SIM_FILE} ABSOLUTE BASE_DIR)
   list(APPEND FINAL_SIM_FILES ${SIM_FILE})
+endforeach()
+
+set(ALL_INCLUDE_DIRS ${RENODE_HDL_INCLUDE_DIRS})
+list(APPEND ALL_INCLUDE_DIRS ${SIM_INCLUDE_DIRS})
+foreach(DIR ${ALL_INCLUDE_DIRS})
+  get_filename_component(DIR ${DIR} ABSOLUTE BASE_DIR)
+  list(APPEND FINAL_INCLUDE_DIRS ${DIR})
+endforeach()
+
+set(FINAL_GENERIC_ARGUMENTS "+libext+.sv")
+foreach(INCDIR ${FINAL_INCLUDE_DIRS})
+  list(APPEND FINAL_GENERIC_ARGUMENTS "+incdir+${INCDIR}")
+endforeach()
+foreach(HDL_DIR ${RENODE_HDL_DIRECTORIES})
+  list(APPEND FINAL_GENERIC_ARGUMENTS "-y")
+  list(APPEND FINAL_GENERIC_ARGUMENTS ${HDL_DIR})
 endforeach()
 
 ###
@@ -126,7 +147,7 @@ endforeach()
 set(USER_VERILATOR_ARGS ${VERILATOR_ARGS} CACHE STRING "Extra arguments/switches for Verilating")
 separate_arguments(USER_VERILATOR_ARGS)
 set(FINAL_VERILATOR_ARGS ${USER_VERILATOR_ARGS})
-list(APPEND FINAL_VERILATOR_ARGS "-I${RENODE_HDL_LIBRARY}")
+list(APPEND FINAL_VERILATOR_ARGS ${FINAL_GENERIC_ARGUMENTS})
 set(FINAL_LINK_ARGS ${PROJECT_LINK_ARGS})
 set(FINAL_COMP_ARGS ${PROJECT_COMP_ARGS})
 
@@ -177,7 +198,7 @@ else()
     COMMAND ${QUESTA_VLIB} ${USER_QUESTA_WORKDIR_NAME}
   )
   add_custom_command(OUTPUT questa_compiled
-    COMMAND ${QUESTA_VLOG} ${FINAL_QUESTA_ARGS} ${FINAL_SIM_FILES} ${RENODE_SOURCES} "+incdir+${RENODE_HDL_LIBRARY}"
+    COMMAND ${QUESTA_VLOG} ${FINAL_QUESTA_ARGS} ${FINAL_GENERIC_ARGUMENTS} ${FINAL_SIM_FILES} ${RENODE_SOURCES}
     DEPENDS questa_workdir ${FINAL_SIM_FILES} ${RENODE_SOURCES}
   )
   add_custom_command(OUTPUT questa_optimized

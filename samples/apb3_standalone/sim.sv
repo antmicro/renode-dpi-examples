@@ -15,6 +15,8 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module sim;
   parameter int unsigned ClockPeriod = 100;
   parameter int unsigned APB3BusAddressWidth = 20;

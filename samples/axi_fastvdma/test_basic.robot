@@ -18,9 +18,6 @@ ${ADDRESS_DESTINATION}              0x20000000
 
 ${BASIC_PLATFORM}                   ${CURDIR}/platform_basic.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
-
 
 *** Keywords ***
 Create Machine
@@ -105,54 +102,60 @@ Test DMA Interrupt
     Execute Command                 emulation RunFor "0.1"
     Wait For Log Entry              ${PLIC_PERIPHERAL}: Setting GPIO number #2 to value False  timeout=0
 
+Should Write DMA Registers
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+    Make Repeated DMA Writes
+
+Should Run DMA Transaction
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+    Test DMA Transaction
+
+Should Trigger DMA Interrupt
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Log Tester               0
+    Create Machine
+    Execute Command                 logLevel -1 plic
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Test DMA Interrupt
 
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${DMA_PERIPHERAL}  ${VERILATED_BINARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Verilator
 
 Should Connect Questa
     [Tags]                          questa
-    Should Connect To Questa And Reset Peripheral  ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Questa
+
 
 Should Write DMA Registers In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${DMA_PERIPHERAL}  ${VERILATED_BINARY}
-    Make Repeated DMA Writes
+    Should Write DMA Registers      ${DMA_PERIPHERAL}  Run Verilator
 
 Should Write DMA Registers In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
-    Make Repeated DMA Writes
+    Should Write DMA Registers      ${DMA_PERIPHERAL}  Run Questa
+
 
 Should Run DMA Transaction In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${DMA_PERIPHERAL}  ${VERILATED_BINARY}
-    Test DMA Transaction
+    Should Run DMA Transaction      ${DMA_PERIPHERAL}  Run Verilator
 
 Should Run DMA Transaction In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
-    Test DMA Transaction
+    Should Run DMA Transaction      ${DMA_PERIPHERAL}  Run Questa
+
 
 Should Trigger DMA Interrupt In Verilator
     [Tags]                          verilator
-    Create Log Tester               0
-    Create Machine
-    Execute Command                 logLevel -1 plic
-    Connect To Verilator            ${DMA_PERIPHERAL}  ${VERILATED_BINARY}
-
-    Test DMA Interrupt
+    Should Trigger DMA Interrupt    ${DMA_PERIPHERAL}  Run Verilator
 
 Should Trigger DMA Interrupt In Questa
     [Tags]                          questa
-    Create Log Tester               0
-    Create Machine
-    Execute Command                 logLevel -1 plic
-    Connect To Questa               ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+    Should Trigger DMA Interrupt    ${DMA_PERIPHERAL}  Run Questa
 
-    Test DMA Interrupt

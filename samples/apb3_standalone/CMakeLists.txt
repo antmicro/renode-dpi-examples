@@ -21,7 +21,6 @@ set(VERILATOR_CSOURCES sim_main.cpp)
 set(VERILATOR_ARGS --timing --assert -GAPB3BusDataWidth=${APB3_DATA_WIDTH})
 
 # Questa variables
-set(QUESTA_ARGS "")
 set(QUESTA_OPTIMIZATION_ARGS -GAPB3BusDataWidth=${APB3_DATA_WIDTH})
 
 # CMake file doing the hard job

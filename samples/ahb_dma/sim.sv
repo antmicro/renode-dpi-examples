@@ -15,19 +15,20 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module sim;
   parameter int ClockPeriod = 100;
-  parameter int ReceiverPort = 0;
-  parameter int SenderPort = 0;
-  parameter string Address = "";
 
   logic clk = 1;
   wire  interrupt;
 
+  renode_runtime runtime = new();
   renode #(
       .BusControllersCount(1),
       .BusPeripheralsCount(1)
   ) renode (
+      .runtime(runtime),
       .clk(clk),
       .renode_inputs(interrupt),
       .renode_outputs()
@@ -40,8 +41,8 @@ module sim;
       clk
   );
   renode_ahb_manager renode_ahb_manager (
-      .bus(ahb_control),
-      .connection(renode.bus_controller)
+      .runtime(runtime),
+      .bus(ahb_control)
   );
 
   renode_ahb_if #(
@@ -51,12 +52,12 @@ module sim;
       clk
   );
   renode_ahb_subordinate renode_ahb_subordinate (
-      .bus(ahb_data),
-      .connection(renode.bus_peripheral)
+      .runtime(runtime),
+      .bus(ahb_data)
   );
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    runtime.connect_plus_args();
     renode.reset();
   end
 
@@ -64,7 +65,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Renode.
     renode.receive_and_handle_message();
-    if (!renode.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   always #(ClockPeriod / 2) clk = ~clk;

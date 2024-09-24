@@ -14,8 +14,7 @@ set(AXI_DATA_WIDTH 64 CACHE STRING "Width of data channels in the AXI data bus")
 set(VERILATOR_ARGS -Wno-WIDTH -Wno-CASEINCOMPLETE -Wno-UNSIGNED --timing -GAXIDataWidth=${AXI_DATA_WIDTH})
 
 # Questa variables
-set(QUESTA_ARGS "")
-set(QUESTA_OPTIMIZATION_ARGS -floatparameters+ReceiverPort+SenderPort+Address -GAXIDataWidth=${AXI_DATA_WIDTH})
+set(QUESTA_OPTIMIZATION_ARGS -GAXIDataWidth=${AXI_DATA_WIDTH})
 
 # CMake file doing the hard job
 include(../../cmake/build-cosimulation.cmake)

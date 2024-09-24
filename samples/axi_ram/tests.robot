@@ -12,9 +12,6 @@ ${TEST_DATA}                        12345678CAFEBABE000000005A5A5A5A
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
-
 
 *** Keywords ***
 Create Machine
@@ -39,28 +36,29 @@ Test Read And Write Memory
         END
     END
 
+Should Connect, Read And Write
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Start Emulation
+    Test Read And Write Memory
 
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${MEMORY_PERIPHERAL}  ${VERILATED_BINARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${MEMORY_PERIPHERAL}  Create Machine  Run Verilator
 
 Should Connect Questa
     [Tags]                          questa
-    Should Connect To Questa And Reset Peripheral  ${MEMORY_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${MEMORY_PERIPHERAL}  Create Machine  Run Questa
+
 
 Should Read And Write Memory In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${MEMORY_PERIPHERAL}  ${VERILATED_BINARY}
-
-    Start Emulation
-    Test Read And Write Memory
+    Should Connect, Read And Write  ${MEMORY_PERIPHERAL}  Run Verilator
 
 Should Read And Write Memory In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${MEMORY_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+    Should Connect, Read And Write  ${MEMORY_PERIPHERAL}  Run Questa
 
-    Start Emulation
-    Test Read And Write Memory

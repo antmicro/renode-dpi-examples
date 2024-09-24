@@ -14,8 +14,6 @@ ${LED_PERIPHERAL1}                  sysbus.led1
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
 *** Keywords ***
 Create Machine
@@ -32,15 +30,10 @@ One LED Should Blink After Pressing Button While The Other Stays Off
     Assert LED State                false  testerId=${led0}
     Assert LED State                false  testerId=${led1}
 
-*** Test Cases ***
-Should Connect Verilator
-    [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${REPEATER_PERIPHERAL}  ${VERILATED_BINARY}  Create Machine
-
 Should Repeat GPIO Signal
-    [Tags]                          verilator
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
     Create Machine
-    Connect To Verilator            ${REPEATER_PERIPHERAL}  ${VERILATED_BINARY}
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
 
     ${led0}=                        Create LED Tester  ${LED_PERIPHERAL0}  defaultTimeout=1
     ${led1}=                        Create LED Tester  ${LED_PERIPHERAL1}  defaultTimeout=1
@@ -49,3 +42,21 @@ Should Repeat GPIO Signal
 
     One LED Should Blink After Pressing Button While The Other Stays Off  ${led0}  ${led1}  ${BUTTON_PERIPHERAL0}
     One LED Should Blink After Pressing Button While The Other Stays Off  ${led1}  ${led0}  ${BUTTON_PERIPHERAL1}
+
+*** Test Cases ***
+Should Connect Verilator
+    [Tags]                          verilator
+    Should Connect To Simulation And Reset Peripheral  ${REPEATER_PERIPHERAL}  Create Machine  Run Verilator
+
+Should Connect Questa
+    [Tags]                          questa
+    Should Connect To Simulation And Reset Peripheral  ${REPEATER_PERIPHERAL}  Create Machine  Run Questa
+
+Should Repeat GPIO Signal In Verilator
+    [Tags]                          verilator
+    Should Repeat GPIO Signal       ${REPEATER_PERIPHERAL}  Run Verilator 
+
+Should Repeat GPIO Signal In Questa
+    [Tags]                          questa
+    Should Repeat GPIO Signal       ${REPEATER_PERIPHERAL}  Run Questa
+

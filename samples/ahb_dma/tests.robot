@@ -22,8 +22,6 @@ ${REGISTER_DESTINATION}             0x48
 
 ${PLATFORM}                         ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
 *** Keywords ***
 Create Machine
@@ -94,25 +92,28 @@ Test DMA
     Execute Command                 emulation RunFor "0.1"
     Should Interrupt Has Value      False
 
+Should Run DMA
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Test DMA
+
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${DMA_PERIPHERAL}  ${VERILATED_BINARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Verilator
 
 Should Connect Questa
     [Tags]                          questa
-    Should Connect To Questa And Reset Peripheral  ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Questa
+
 
 Should Run DMA In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${DMA_PERIPHERAL}  ${VERILATED_BINARY}
-
-    Test DMA
+    Should Run DMA                  ${DMA_PERIPHERAL}  Run Verilator
 
 Should Run DMA In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${DMA_PERIPHERAL}  ${QUESTA_WORK_LIBRARY}
+    Should Run DMA                  ${DMA_PERIPHERAL}  Run Questa
 
-    Test DMA

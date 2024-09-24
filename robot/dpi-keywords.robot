@@ -1,45 +1,65 @@
 *** Variables ***
-${QUESTA_COMMAND}                   vsim
-${QUESTA_DESIGN}                    design_optimized
-${QUESTA_ARGUMENTS}                 ${EMPTY}
+${BUILD_DIRECTORY}                  ./build
 
+${VERILATOR_SIMULATION}             ${BUILD_DIRECTORY}/verilated
+
+${QUESTA_SIMULATION}                vsim
+${QUESTA_USER_ARGUMENTS}            ${EMPTY}
+@{QUESTA_ARGUMENTS}                 design_optimized
+...                                 -work  ${BUILD_DIRECTORY}/work_questa
+...                                 -c
+...                                 -do  run -all
+...                                 -onfinish  exit
 
 *** Keywords ***
-Run Verilator
-    [Arguments]                     ${binary}  ${arguments}
-    ${logFile}=                     Allocate Temporary File
-    # The process standard output is redirected to the file to prevent a buffer from filling up
-    Start Process                   ${binary}  @{arguments}  stdout=${logFile}
+Should Connect To Simulation And Reset Peripheral
+    [Arguments]                     ${peripheral}  ${create_machine_keyword}  ${run_simulation_keyword}
+    Create Log Tester               0
+    Execute Command                 logLevel 0
 
-Connect To Verilator
-    [Arguments]                     ${peripheral_name}  ${binary}
-    ${connectionParameters}=        Execute Command  ${peripheral_name} ConnectionParameters
-    ${simulationArguments}=         Split String  ${connectionParameters}
-    Run Verilator                   ${binary}  ${simulationArguments}
+    Run Keyword                     ${create_machine_keyword}
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Wait For Log Entry              ${peripheral}: Connected
+    Execute Command                 ${peripheral} Reset
+
+Connect To Simulation
+    [Arguments]                     ${peripheral_name}  ${run_simulation_keyword}
+    ${connection_arguments}=        Get Connection Plus Args  ${peripheral_name}
+
+    Run Keyword                     ${run_simulation_keyword}  ${connection_arguments}
     Execute Command                 ${peripheral_name} Connect
 
+Get Connection Plus Args
+    [Arguments]                     ${peripheral_name}
+    ${connection_string}=           Execute Command  ${peripheral_name} ConnectionParameters
+    ${parameters}=                  Split String  ${connection_string}
+    ${arguments}=                   Create List  +RENODE_RECEIVER_PORT\=${parameters}[0]
+    ...                             +RENODE_SENDER_PORT\=${parameters}[1]
+    ...                             +RENODE_ADDRESS\=${parameters}[2]
+    RETURN   ${arguments}
+
+Run Verilator
+    [Arguments]                     ${arguments}
+    Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}
+
 Run Questa
-    [Arguments]                     ${work_library}  ${arguments}
-    ${global_arguments}=            Split String  ${QUESTA_ARGUMENTS}
-    Append To List                  ${arguments}  @{global_arguments}
-    Append To List                  ${arguments}  -work  ${work_library}
-    Append To List                  ${arguments}  -c  -do  run -all  -onfinish  exit
+    [Arguments]                     ${additional_arguments}
+    ${user_arguments}=              Split String  ${QUESTA_USER_ARGUMENTS}
+    ${arguments}=                   Combine Lists  ${QUESTA_ARGUMENTS}  ${user_arguments}  ${additional_arguments}
+
     ${system}=                      Evaluate  platform.system()  modules=platform
     IF  '${system}' == 'Windows'
         Append To List                  ${arguments}  -ldflags  -lws2_32
     END
+
+    Run Executable                  ${QUESTA_SIMULATION}  ${arguments}
+
+Run Executable
+    [Arguments]                     ${executable}  ${arguments}
     ${logFile}=                     Allocate Temporary File
     # The process standard output is redirected to the file to prevent a buffer from filling up
-    Start Process                   ${QUESTA_COMMAND}  ${QUESTA_DESIGN}  @{arguments}  stdout=${logFile}
-
-Connect To Questa
-    [Arguments]                     ${peripheral_name}  ${work_library}
-    ${connectionParameters}=        Execute Command  ${peripheral_name} ConnectionParameters
-    ${connectionArguments}=         Split String  ${connectionParameters}
-
-    ${simulationArguments}=         Create List  -GReceiverPort\=${connectionArguments}[0]  -GSenderPort\=${connectionArguments}[1]  -GAddress\="${connectionArguments}[2]"
-    Run Questa                      ${work_library}  ${simulationArguments}
-    Execute Command                 ${peripheral_name} Connect
+    Start Process                   ${executable}  @{arguments}  stdout=${logFile}
 
 Terminate And Log
     ${result}=                      Wait For Process  timeout=5 secs  on_timeout=terminate
@@ -48,25 +68,3 @@ Terminate And Log
         Fail                            ${result.stderr}
         Log                             RC = ${result.rc}  ERROR
     END
-
-Should Connect To Verilator And Reset Peripheral
-    [Arguments]                     ${peripheral}  ${verilated_binary}  ${create_machine_keyword}
-    Create Log Tester               0
-    Execute Command                 logLevel 0
-
-    Run Keyword                     ${create_machine_keyword}
-    Connect To Verilator            ${peripheral}  ${verilated_binary}
-
-    Wait For Log Entry              ${peripheral}: Connected
-    Execute Command                 ${peripheral} Reset
-
-Should Connect To Questa And Reset Peripheral
-    [Arguments]                     ${peripheral}  ${work_library}  ${create_machine_keyword}
-    Create Log Tester               0
-    Execute Command                 logLevel 0
-
-    Run Keyword                     ${create_machine_keyword}
-    Connect To Questa               ${peripheral}  ${work_library}
-
-    Wait For Log Entry              ${peripheral}: Connected
-    Execute Command                 ${peripheral} Reset

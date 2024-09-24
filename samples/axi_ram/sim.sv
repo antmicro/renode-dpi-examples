@@ -15,18 +15,19 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module sim;
   parameter int unsigned AXIDataWidth = 64;
   parameter int ClockPeriod = 100;
-  parameter int ReceiverPort = 0;
-  parameter int SenderPort = 0;
-  parameter string Address = "";
 
   logic clk = 1;
 
-  renode # (
+  renode_runtime runtime = new();
+  renode #(
       .BusControllersCount(1)
   ) renode (
+      .runtime(runtime),
       .clk(clk),
       .renode_inputs('0),
       .renode_outputs()
@@ -34,12 +35,12 @@ module sim;
 
   renode_axi_if #(.AddressWidth(20), .DataWidth(AXIDataWidth)) axi (clk);
   renode_axi_manager renode_axi_manager (
-      .bus(axi),
-      .connection(renode.bus_controller)
+      .runtime(runtime),
+      .bus(axi)
   );
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    runtime.connect_plus_args();
     renode.reset();
   end
 
@@ -47,7 +48,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Renode.
     renode.receive_and_handle_message();
-    if (!renode.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   always #(ClockPeriod / 2) clk = ~clk;

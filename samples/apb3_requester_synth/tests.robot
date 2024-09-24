@@ -8,11 +8,8 @@ Resource                            ${CURDIR}/../../robot/access-peripheral-keyw
 *** Variables ***
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
 ${DUT}                              requester
-
 
 *** Keywords ***
 Create Machine
@@ -61,28 +58,29 @@ Post Emulation Memory Should Contain
     Memory Should Contain           0x0000111C  0x000BB11C
     Memory Should Contain           0x0000121C  0x000BB21C
 
+Should Read And Write Memory
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+
+    Execute Command                 emulation RunFor "00:00:0.001"
+    Post Emulation Memory Should Contain
 
 *** Test Cases ***
 Should Connect Verilator
     [Tags]                          verilator
-    Should Connect To Verilator And Reset Peripheral  ${DUT}  ${VERILATED_BINARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DUT}  Create Machine  Run Verilator
 
 Should Connect Questa
     [Tags]                          questa
-    Should Connect To Questa And Reset Peripheral  ${DUT}  ${QUESTA_WORK_LIBRARY}  Create Machine
+    Should Connect To Simulation And Reset Peripheral  ${DUT}  Create Machine  Run Questa
+
 
 Should Read And Write Memory In Verilator
     [Tags]                          verilator
-    Create Machine
-    Connect To Verilator            ${DUT}  ${VERILATED_BINARY}
-
-    Execute Command                 emulation RunFor "00:00:0.001"
-    Post Emulation Memory Should Contain
+    Should Read And Write Memory    ${DUT}  Run Verilator
 
 Should Read And Write Memory In Questa
     [Tags]                          questa
-    Create Machine
-    Connect To Questa               ${DUT}  ${QUESTA_WORK_LIBRARY}
+    Should Read And Write Memory    ${DUT}  Run Questa
 
-    Execute Command                 emulation RunFor "00:00:0.001"
-    Post Emulation Memory Should Contain

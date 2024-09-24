@@ -20,18 +20,13 @@
 #include <verilated_vcd_c.h>
 #endif
 
-#include "src/renode_dpi.h"
-
 int main(int argc, char **argv, char **env)
 {
-    if (argc < 3)
-    {
-        printf("Usage: %s {receiverPort} {senderPort} {address}\n", argv[0]);
-        exit(-1);
-    }
-    const char *address = argc < 3 ? "127.0.0.1" : argv[3];
-    renodeDPIConnect(atoi(argv[1]), atoi(argv[2]), address);
-
+#ifdef RENODE_DEBUG_VERILATOR
+    // Disable buffering of stdout to print logs
+    // even when Verilator is terminated on timeout
+    setbuf(stdout, NULL);
+#endif
     VerilatedContext *contextp = new VerilatedContext;
     contextp->commandArgs(argc, argv);
     Vsim *top = new Vsim{contextp};

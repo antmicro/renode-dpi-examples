@@ -15,20 +15,21 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module sim;
   parameter int ClockPeriod = 100;
-  parameter int ReceiverPort = 0;
-  parameter int SenderPort = 0;
-  parameter string Address = "";
 
   parameter int unsigned APB3BusAddressWidth = 20;
   parameter int unsigned APB3BusDataWidth = 32;
 
   logic clk = 1;
 
+  renode_runtime runtime = new();
   renode #(
       .BusControllersCount(1)
   ) renode (
+      .runtime(runtime),
       .clk(clk),
       .renode_inputs('0),
       .renode_outputs()
@@ -40,12 +41,12 @@ module sim;
   ) apb3 (clk);
 
   renode_apb3_requester renode_apb3_requester (
-      .bus(apb3),
-      .connection(renode.bus_controller)
+      .runtime(runtime),
+      .bus(apb3)
   );
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    runtime.connect_plus_args();
     renode.reset();
   end
 
@@ -53,7 +54,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Renode.
     renode.receive_and_handle_message();
-    if (!renode.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   always #(ClockPeriod / 2) clk = ~clk;

@@ -15,6 +15,8 @@
 
 `timescale 1ns / 1ps
 
+import renode_pkg::renode_runtime;
+
 module repeater (
   input  wire [1:0] in,
   output wire [1:0] out
@@ -24,26 +26,25 @@ endmodule
 
 module sim;
   parameter int ClockPeriod = 100;
-  parameter int ReceiverPort = 0;
-  parameter int SenderPort = 0;
-  parameter string Address = "";
 
   logic clk = 1;
 
   logic [1:0] renode_inputs;
   logic [1:0] renode_outputs;
 
+  renode_runtime runtime = new();
   renode #(
     .RenodeInputsCount(2),
     .RenodeOutputsCount(2)
   ) renode (
+    .runtime(runtime),
     .clk(clk),
     .renode_inputs(renode_inputs),
     .renode_outputs(renode_outputs)
   );
 
   initial begin
-    if (Address != "") renode.connection.connect(ReceiverPort, SenderPort, Address);
+    runtime.connect_plus_args();
     renode.reset();
   end
 
@@ -51,7 +52,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until a message is received from Renode
     renode.receive_and_handle_message();
-    if (!renode.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   always #(ClockPeriod / 2) clk = ~clk;

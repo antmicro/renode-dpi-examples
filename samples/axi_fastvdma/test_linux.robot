@@ -6,15 +6,13 @@ Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 
 *** Variables ***
 ${BUILD_DIRECTORY}                  ${CURDIR}/build
-${VERILATED_BINARY}                 ${BUILD_DIRECTORY}/verilated
-${QUESTA_WORK_LIBRARY}              ${BUILD_DIRECTORY}/work_questa
 
+${DMA_PERIHPERAL}                   dma
 ${LINUX_PLATFORM}                   ${CURDIR}/platform_linux.resc
 ${LINUX_PROMPT}                     zynq>
 ${LINUX_UART}                       sysbus.uart1
 ${FASTVDMA_DRIVER}                  /lib/modules/5.10.0-xilinx/kernel/drivers/dma/fastvdma/fastvdma.ko
 ${FASTVDMA_DEMO_DRIVER}             /lib/modules/5.10.0-xilinx/kernel/drivers/dma/fastvdma/fastvdma-demo.ko
-
 
 *** Keywords ***
 Create Machine
@@ -72,20 +70,20 @@ Test DMA Driver On Linux
     END
     Compare Parts Of Images On Linux  img0.rgba  out.rgba  2052  6140  6140
 
+Should Boot Linux And User DMA
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Machine
+    Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
+    Create Terminal Tester          ${LINUX_UART}
+
+    Test DMA Driver On Linux
 
 *** Test Cases ***
-Should Boot Linux And Use DMA In Verilator
-    [Tags]                          verilator  linux
-    Create Machine
-    Connect To Verilator            dma  ${VERILATED_BINARY}
-    Create Terminal Tester          ${LINUX_UART}
+Should Boot Linux And User DMA In Verilator
+    [Tags]                          verilator
+    Should Boot Linux And User DMA  ${DMA_PERIHPERAL}  Run Verilator
 
-    Test DMA Driver On Linux
+Should Boot Linux And User DMA In Questa
+    [Tags]                          questa
+    Should Boot Linux And User DMA  ${DMA_PERIHPERAL}  Run Questa
 
-Should Boot Linux And Use DMA In Questa
-    [Tags]                          questa  linux
-    Create Machine
-    Connect To Questa               dma  ${QUESTA_WORK_LIBRARY}
-    Create Terminal Tester          ${LINUX_UART}
-
-    Test DMA Driver On Linux
