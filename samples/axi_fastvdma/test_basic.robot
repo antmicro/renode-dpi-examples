@@ -132,6 +132,9 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Questa
 
+Should Connect VCS
+    [Tags]                          vcs
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run VCS
 
 Should Write DMA Registers In Verilator
     [Tags]                          verilator
@@ -141,6 +144,9 @@ Should Write DMA Registers In Questa
     [Tags]                          questa
     Should Write DMA Registers      ${DMA_PERIPHERAL}  Run Questa
 
+Should Write DMA Registers In VCS
+    [Tags]                          vcs
+    Should Write DMA Registers      ${DMA_PERIPHERAL}  Run VCS
 
 Should Run DMA Transaction In Verilator
     [Tags]                          verilator
@@ -150,6 +156,9 @@ Should Run DMA Transaction In Questa
     [Tags]                          questa
     Should Run DMA Transaction      ${DMA_PERIPHERAL}  Run Questa
 
+Should Run DMA Transaction In VCS
+    [Tags]                          vcs
+    Should Run DMA Transaction      ${DMA_PERIPHERAL}  Run VCS
 
 Should Trigger DMA Interrupt In Verilator
     [Tags]                          verilator
@@ -159,3 +168,6 @@ Should Trigger DMA Interrupt In Questa
     [Tags]                          questa
     Should Trigger DMA Interrupt    ${DMA_PERIPHERAL}  Run Questa
 
+Should Trigger DMA Interrupt In VCS
+    [Tags]                          vcs
+    Should Trigger DMA Interrupt    ${DMA_PERIPHERAL}  Run VCS

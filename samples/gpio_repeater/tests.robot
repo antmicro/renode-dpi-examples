@@ -52,6 +52,10 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Simulation And Reset Peripheral  ${REPEATER_PERIPHERAL}  Create Machine  Run Questa
 
+Should Connect VCS
+    [Tags]                          vcs
+    Should Connect To Simulation And Reset Peripheral  ${REPEATER_PERIPHERAL}  Create Machine  Run VCS
+
 Should Repeat GPIO Signal In Verilator
     [Tags]                          verilator
     Should Repeat GPIO Signal       ${REPEATER_PERIPHERAL}  Run Verilator 
@@ -60,3 +64,6 @@ Should Repeat GPIO Signal In Questa
     [Tags]                          questa
     Should Repeat GPIO Signal       ${REPEATER_PERIPHERAL}  Run Questa
 
+Should Repeat GPIO Signal In VCS
+    [Tags]                          vcs
+    Should Repeat GPIO Signal       ${REPEATER_PERIPHERAL}  Run VCS

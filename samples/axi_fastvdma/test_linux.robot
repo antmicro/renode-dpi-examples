@@ -87,3 +87,6 @@ Should Boot Linux And User DMA In Questa
     [Tags]                          questa
     Should Boot Linux And User DMA  ${DMA_PERIHPERAL}  Run Questa
 
+Should Boot Linux And User DMA In VCS
+    [Tags]                          vcs
+    Should Boot Linux And User DMA  ${DMA_PERIHPERAL}  Run VCS

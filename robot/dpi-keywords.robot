@@ -3,6 +3,9 @@ ${BUILD_DIRECTORY}                  ./build
 
 ${VERILATOR_SIMULATION}             ${BUILD_DIRECTORY}/verilated
 
+${VCS_SIMULATION}                   ${BUILD_DIRECTORY}/simv
+@{VCS_ARGUMENTS}                    -sv_lib  ${BUILD_DIRECTORY}/librenode_dpi
+
 ${QUESTA_SIMULATION}                vsim
 ${QUESTA_USER_ARGUMENTS}            ${EMPTY}
 @{QUESTA_ARGUMENTS}                 design_optimized
@@ -38,6 +41,11 @@ Get Connection Plus Args
     ...                             +RENODE_SENDER_PORT\=${parameters}[1]
     ...                             +RENODE_ADDRESS\=${parameters}[2]
     RETURN   ${arguments}
+
+Run VCS
+    [Arguments]                     ${additional_arguments}
+    ${arguments}=                   Combine Lists  ${VCS_ARGUMENTS}  ${additional_arguments}
+    Run Executable                  ${VCS_SIMULATION}  ${arguments}
 
 Run Verilator
     [Arguments]                     ${arguments}

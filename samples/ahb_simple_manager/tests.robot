@@ -36,6 +36,9 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Simulation And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  Create Machine  Run Questa
 
+Should Connect VCS
+    [Tags]                          vcs
+    Should Connect To Simulation And Reset Peripheral  ${SUBORDINATE_PERIPHERAL}  Create Machine  Run VCS
 
 Should Run Subordinate In Verilator
     [Tags]                          verilator
@@ -45,3 +48,6 @@ Should Run Subordinate In Questa
     [Tags]                          questa
     Should Run Subordinate          ${SUBORDINATE_PERIPHERAL}  Run Questa
 
+Should Run Subordinate In VCS
+    [Tags]                          vcs
+    Should Run Subordinate          ${SUBORDINATE_PERIPHERAL}  Run VCS

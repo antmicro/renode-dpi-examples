@@ -52,6 +52,9 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Simulation And Reset Peripheral  ${DUT}  Create Machine  Run Questa
 
+Should Connect VCS
+    [Tags]                          vcs
+    Should Connect To Simulation And Reset Peripheral  ${DUT}  Create Machine  Run VCS
 
 Should Read And Write Memory In Verilator
     [Tags]                          verilator
@@ -61,3 +64,6 @@ Should Read And Write Memory In Questa
     [Tags]                          questa
     Should Connect, Read And Write  ${DUT}  Run Questa
 
+Should Read And Write Memory In VCS
+    [Tags]                          vcs
+    Should Connect, Read And Write  ${DUT}  Run VCS

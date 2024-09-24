@@ -174,6 +174,11 @@ else()
 endif()
 
 ###
+### DPI Library
+###
+add_library(renode_dpi SHARED EXCLUDE_FROM_ALL ${RENODE_SOURCES})
+
+###
 ### Prepare Questa target
 ###
 set(USER_QUESTA_PATH CACHE STRING "Path to Questa bin directory")
@@ -206,4 +211,24 @@ else()
     DEPENDS questa_compiled
   )
   add_custom_target(questa-build ALL DEPENDS questa_optimized)
+endif()
+
+###
+### Prepare VCS target
+###
+set(USER_VCS_PATH CACHE STRING "Path to VCS bin directory")
+find_program(VCS_COMMAND vcs ${USER_VCS_PATH})
+
+set(USER_VCS_ARGS ${VCS_ARGS} CACHE STRING "Extra arguments/switches used for build and run Questa commands (vlog, vopt, vsim)")
+separate_arguments(USER_VCS_ARGS)
+set(FINAL_VCS_ARGS ${USER_VCS_ARGS})
+list(APPEND FINAL_VCS_ARGS ${FINAL_GENERIC_ARGUMENTS})
+if(NOT VCS_COMMAND)
+  message(NOTICE "There's no VCS available. This target will be ignored.")
+else()
+  add_custom_command(OUTPUT vcs_simulation_executable
+    COMMAND ${VCS_COMMAND} -full64 -sverilog ${FINAL_VCS_ARGS} ${FINAL_SIM_FILES}
+  )
+  add_custom_target(vcs-build ALL DEPENDS vcs_simulation_executable)
+  add_dependencies(vcs-build renode_dpi)
 endif()

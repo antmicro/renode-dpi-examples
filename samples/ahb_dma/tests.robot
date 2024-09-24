@@ -108,6 +108,9 @@ Should Connect Questa
     [Tags]                          questa
     Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run Questa
 
+Should Connect VCS
+    [Tags]                          vcs
+    Should Connect To Simulation And Reset Peripheral  ${DMA_PERIPHERAL}  Create Machine  Run VCS
 
 Should Run DMA In Verilator
     [Tags]                          verilator
@@ -117,3 +120,6 @@ Should Run DMA In Questa
     [Tags]                          questa
     Should Run DMA                  ${DMA_PERIPHERAL}  Run Questa
 
+Should Run DMA In VCS
+    [Tags]                          vcs
+    Should Run DMA                  ${DMA_PERIPHERAL}  Run VCS
