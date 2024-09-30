@@ -70,10 +70,11 @@ module sim;
 
   always #(ClockPeriod / 2) clk = ~clk;
 
-  wire control_hresp_nc;
+  logic [1:0] control_hresp;
   // Only one Subordinate doesn't require an Interconnect.
   assign ahb_control.hsel = 1;
   assign ahb_control.hready = ahb_control.hreadyout;
+  assign ahb_control.hresp = control_hresp[0];
 
   assign ahb_data.hsel = 1;
   assign ahb_data.hready = ahb_data.hreadyout;
@@ -89,7 +90,7 @@ module sim;
       .S_HBURST(ahb_control.hburst),
       .S_HWDATA(ahb_control.hwdata),
       .S_HRDATA(ahb_control.hrdata),
-      .S_HRESP({control_hresp_nc, ahb_control.hresp}),
+      .S_HRESP(control_hresp),
       .S_HREADYin(ahb_control.hready),
       .S_HREADYout(ahb_control.hreadyout),
 

@@ -57,10 +57,11 @@ module sim;
 
   always #(ClockPeriod / 2) clk = ~clk;
 
-  wire hresp_nc;
+  logic [1:0] hresp;
   // Only one Subordinate doesn't require an Interconnect.
   assign ahb.hsel   = 1;
   assign ahb.hready = ahb.hreadyout;
+  assign ahb.hresp = hresp[0];
 
   mem_ahb dut (
       .HCLK(clk),
@@ -73,7 +74,7 @@ module sim;
       .HBURST(ahb.hburst),
       .HWDATA(ahb.hwdata),
       .HRDATA(ahb.hrdata),
-      .HRESP({hresp_nc, ahb.hresp}),
+      .HRESP(hresp),
       .HREADYin(ahb.hready),
       .HREADYout(ahb.hreadyout)
   );
