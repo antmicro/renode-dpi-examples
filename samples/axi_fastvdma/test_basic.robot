@@ -63,22 +63,25 @@ Memory Should Contain
     Should Contain                  ${result}  ${value}
 
 Test DMA Transaction
+    [Arguments]                     ${address_source}=${ADDRESS_SOURCE}  ${address_destination}=${ADDRESS_DESTINATION}  ${skip_asserts}=false
     ${last_byte_offset}=            Set Variable  ${{ int(${BUS_WIDTH}) // 8 * int(${TRANSACTION_LENGTH}) - 1 }}
-    Write To Peripheral             sysbus  DoubleWord  ${ADDRESS_SOURCE}  ${TEST_DATA}
-    Write To Peripheral             sysbus  Byte  ${{ hex(int(${ADDRESS_SOURCE}) + $last_byte_offset) }}  ${TEST_BYTE}
+    Write To Peripheral             sysbus  DoubleWord  ${address_source}  ${TEST_DATA}
+    Write To Peripheral             sysbus  Byte  ${{ hex(int(${address_source}) + $last_byte_offset) }}  ${TEST_BYTE}
 
-    Configure DMA                   ${ADDRESS_SOURCE}  ${ADDRESS_DESTINATION}  ${TRANSACTION_LENGTH}
+    Configure DMA                   ${address_source}  ${address_destination}  ${TRANSACTION_LENGTH}
     Start DMA Transaction
 
     Execute Command                 emulation RunFor "0.1"
 
-    Transaction Should Finish
+    IF  '${skip_asserts}' == 'false'
+        Transaction Should Finish
 
-    Should Peripheral Contain       sysbus  DoubleWord  ${ADDRESS_DESTINATION}  ${TEST_DATA}
-    ${destination_last_byte}=       Evaluate  int(${ADDRESS_DESTINATION}) + $last_byte_offset
-    Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte - 1) }}  00
-    Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte) }}  ${TEST_BYTE}
-    Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte + 1) }}  00
+        Should Peripheral Contain       sysbus  DoubleWord  ${address_destination}  ${TEST_DATA}
+        ${destination_last_byte}=       Evaluate  int(${address_destination}) + $last_byte_offset
+        Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte - 1) }}  00
+        Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte) }}  ${TEST_BYTE}
+        Should Peripheral Contain       sysbus  Byte  ${{ hex($destination_last_byte + 1) }}  00
+    END
 
 Test DMA Interrupt
     Configure DMA                   ${ADDRESS_SOURCE}  ${ADDRESS_DESTINATION}  ${TRANSACTION_LENGTH}
@@ -122,6 +125,15 @@ Should Trigger DMA Interrupt
     Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
 
     Test DMA Interrupt
+
+Should Not Crash On Unaligned Access
+    [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Should Connect To Simulation And Reset Peripheral  ${peripheral}  Create Machine  ${run_simulation_keyword}
+    # Test manager accesses
+    Execute Command                 ${peripheral} WriteDoubleWord 0x1 0xffffffff
+    Execute Command                 ${peripheral} ReadDoubleWord 0x1
+    # Test subordinate accesses
+    Test DMA Transaction            ${${ADDRESS_SOURCE} + 1}  ${${ADDRESS_DESTINATION} + 1}  true
 
 *** Test Cases ***
 Should Connect Verilator
@@ -171,3 +183,15 @@ Should Trigger DMA Interrupt In Questa
 Should Trigger DMA Interrupt In VCS
     [Tags]                          vcs
     Should Trigger DMA Interrupt    ${DMA_PERIPHERAL}  Run VCS
+
+Should Not Crash On Unaligned Access In Verilator
+    [Tags]                          verilator
+    Should Not Crash On Unaligned Access    ${DMA_PERIPHERAL}  Run Verilator
+
+Should Not Crash On Unaligned Access In Questa
+    [Tags]                          questa
+    Should Not Crash On Unaligned Access    ${DMA_PERIPHERAL}  Run Questa
+
+Should Not Crash On Unaligned Access In VCS
+    [Tags]                          vcs
+    Should Not Crash On Unaligned Access    ${DMA_PERIPHERAL}  Run VCS
