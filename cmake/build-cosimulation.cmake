@@ -11,9 +11,9 @@ endif()
 
 if(NOT USER_RENODE_DIR AND DEFINED ENV{RENODE_ROOT})
   message(STATUS "Using RENODE_ROOT from environment as USER_RENODE_DIR")
-  set(USER_RENODE_DIR $ENV{RENODE_ROOT} CACHE PATH "Absolute (!) path to Renode root directory or any other that contains VerilatorIntegrationLibrary.")
+  set(USER_RENODE_DIR $ENV{RENODE_ROOT} CACHE PATH "Absolute (!) path to Renode root directory or any other that contains IntegrationLibrary.")
 else()
-  set(USER_RENODE_DIR CACHE PATH "Path to Renode root directory or any other that contains VerilatorIntegrationLibrary, relative to build directory.")
+  set(USER_RENODE_DIR CACHE PATH "Path to Renode root directory or any other that contains IntegrationLibrary, relative to build directory.")
   get_filename_component(USER_RENODE_DIR "${USER_RENODE_DIR}" ABSOLUTE BASE_DIR ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
@@ -68,36 +68,36 @@ if(CMAKE_HOST_WIN32)
   endif()
 endif()
 
-if(NOT VIL_DIR)
+if(NOT COLIB_DIR)
   if(NOT USER_RENODE_DIR OR NOT IS_ABSOLUTE "${USER_RENODE_DIR}")
-    message(FATAL_ERROR "Please set the CMake's USER_RENODE_DIR variable to an absolute (!) path to Renode root directory or any other that contains VerilatorIntegrationLibrary.\nPass the '-DUSER_RENODE_DIR=<ABSOLUTE_PATH>' switch if you configure with the 'cmake' command. Optionally, consider using 'ccmake' or 'cmake-gui' which make it easier.")
-  endif()
-  
-  message(STATUS "Looking for Renode VerilatorIntegrationLibrary inside ${USER_RENODE_DIR}...")
-  set(VIL_FILE verilator-integration-library.cmake)
-  file(GLOB_RECURSE VIL_FOUND ${USER_RENODE_DIR}/*/${VIL_FILE})
-
-  list(LENGTH VIL_FOUND VIL_FOUND_N)
-  if(${VIL_FOUND_N} EQUAL 1)
-    string(REPLACE "/${VIL_FILE}" "" VIL_DIR ${VIL_FOUND})
-  elseif(${VIL_FOUND_N} GREATER 1)
-    string(REGEX REPLACE "/${VIL_FILE}" " " ALL_FOUND ${VIL_FOUND})
-    message(FATAL_ERROR "Found more than one directory with VerilatorIntegrationLibrary inside USER_RENODE_DIR. Please choose one of them: ${ALL_FOUND}")
+    message(FATAL_ERROR "Please set the CMake's USER_RENODE_DIR variable to an absolute (!) path to Renode root directory or any other that contains IntegrationLibrary.\nPass the '-DUSER_RENODE_DIR=<ABSOLUTE_PATH>' switch if you configure with the 'cmake' command. Optionally, consider using 'ccmake' or 'cmake-gui' which make it easier.")
   endif()
 
-  if(NOT VIL_DIR OR NOT EXISTS "${VIL_DIR}/${VIL_FILE}")
-    message(FATAL_ERROR "Couldn't find valid VerilatorIntegrationLibrary inside USER_RENODE_DIR!")
+  message(STATUS "Looking for Renode IntegrationLibrary inside ${USER_RENODE_DIR}...")
+  set(COLIB_FILE integration-library.cmake)
+  file(GLOB_RECURSE COLIB_FOUND ${USER_RENODE_DIR}/*/${COLIB_FILE})
+
+  list(LENGTH COLIB_FOUND COLIB_FOUND_N)
+  if(${COLIB_FOUND_N} EQUAL 1)
+    string(REPLACE "/${COLIB_FILE}" "" COLIB_DIR ${COLIB_FOUND})
+  elseif(${COLIB_FOUND_N} GREATER 1)
+    string(REGEX REPLACE "/${COLIB_FILE}" " " ALL_FOUND ${COLIB_FOUND})
+    message(FATAL_ERROR "Found more than one directory with IntegrationLibrary inside USER_RENODE_DIR. Please choose one of them: ${ALL_FOUND}")
   endif()
 
-  include(${VIL_DIR}/${VIL_FILE})  # sets VIL_VERSION variable
-  message(STATUS "Renode VerilatorIntegrationLibrary (version ${VIL_VERSION}) found in ${VIL_DIR}.")
+  if(NOT COLIB_DIR OR NOT EXISTS "${COLIB_DIR}/${COLIB_FILE}")
+    message(FATAL_ERROR "Couldn't find valid IntegrationLibrary inside USER_RENODE_DIR!")
+  endif()
 
-  # Save VIL_DIR in cache
-  set(VIL_DIR ${VIL_DIR} CACHE INTERNAL "")
+  include(${COLIB_DIR}/${COLIB_FILE})  # sets COLIB_VERSION variable
+  message(STATUS "Renode IntegrationLibrary (version ${COLIB_VERSION}) found in ${COLIB_DIR}.")
+
+  # Save COLIB_DIR in cache
+  set(COLIB_DIR ${COLIB_DIR} CACHE INTERNAL "")
 endif()
 
 # Prepare list of Renode DPI Integration files
-set(RENODE_HDL_LIBRARY ${VIL_DIR}/hdl)
+set(RENODE_HDL_LIBRARY ${COLIB_DIR}/hdl)
 set(RENODE_HDL_INCLUDE_DIRS ${RENODE_HDL_LIBRARY})
 
 file(GLOB RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/imports/*.sv)
@@ -110,9 +110,9 @@ foreach(PATH ${RENODE_HDL_MODULES})
   endif()
 endforeach()
 
-file(GLOB_RECURSE RENODE_SOURCES ${VIL_DIR}/libs/socket-cpp/*.cpp)
-list(APPEND RENODE_SOURCES ${VIL_DIR}/src/communication/socket_channel.cpp)
-list(APPEND RENODE_SOURCES ${VIL_DIR}/src/renode_dpi.cpp)
+file(GLOB_RECURSE RENODE_SOURCES ${COLIB_DIR}/libs/socket-cpp/*.cpp)
+list(APPEND RENODE_SOURCES ${COLIB_DIR}/src/communication/socket_channel.cpp)
+list(APPEND RENODE_SOURCES ${COLIB_DIR}/src/renode_dpi.cpp)
 
 if(NOT SIM_TOP OR NOT SIM_TOP_FILE)
   message(FATAL_ERROR "'SIM_TOP' and 'SIM_TOP_FILE' variable have to be set!")
@@ -167,7 +167,7 @@ else()
     message(FATAL_ERROR "'VERILATOR_CSOURCES' it's required to set this variable for Verilator target!")
   endif()
   add_executable(verilated ${VERILATOR_CSOURCES} ${RENODE_SOURCES})
-  target_include_directories(verilated PRIVATE ${VIL_DIR})
+  target_include_directories(verilated PRIVATE ${COLIB_DIR})
   target_compile_options(verilated PRIVATE ${FINAL_COMP_ARGS})
   target_link_libraries(verilated PRIVATE ${FINAL_LINK_ARGS})
   verilate(verilated SOURCES ${FINAL_SIM_FILES} TOP_MODULE ${SIM_TOP} PREFIX "V${SIM_TOP}" VERILATOR_ARGS ${FINAL_VERILATOR_ARGS})
