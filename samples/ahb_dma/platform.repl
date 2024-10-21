@@ -1,4 +1,4 @@
-dma: Verilated.VerilatedPeripheral @ sysbus <0x10000000, +0x100>
+dma: CoSimulated.CoSimulatedPeripheral @ sysbus <0x10000000, +0x100>
     maxWidth: 32
     limitBuffer: 1000000
     timeout: 10000
