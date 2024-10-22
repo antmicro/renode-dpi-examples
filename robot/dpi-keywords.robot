@@ -45,15 +45,18 @@ Get Connection Plus Args
 Run VCS
     [Arguments]                     ${additional_arguments}
     ${arguments}=                   Combine Lists  ${VCS_ARGUMENTS}  ${additional_arguments}
+    Skip If                         ${{not os.path.exists($VCS_SIMULATION)}}  Executable not present.
     Run Executable                  ${VCS_SIMULATION}  ${arguments}
 
 Run Verilator
     [Arguments]                     ${arguments}
+    Skip If                         ${{not os.path.exists($VERILATOR_SIMULATION)}}  Executable not present.
     Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}
 
 Run Questa
     [Arguments]                     ${additional_arguments}
     ${user_arguments}=              Split String  ${QUESTA_USER_ARGUMENTS}
+    Skip If                         ${{not os.path.exists($QUESTA_SIMULATION)}}  Executable not present.
     ${arguments}=                   Combine Lists  ${QUESTA_ARGUMENTS}  ${user_arguments}  ${additional_arguments}
 
     ${system}=                      Evaluate  platform.system()  modules=platform
