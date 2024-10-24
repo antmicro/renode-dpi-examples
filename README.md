@@ -107,14 +107,14 @@ mingw32-make.exe
 ```
 
 ## Testing
-Run in the repository root
+There are tests for Verilator, Questa and VCS. If the cosimulation block executable is not found for some of them, the corresponding tests will be skipped.
+
+To run tests, do the following from the repository root:
 
 #### Linux
 ```bash
 renode/renode-test samples/axi_ram/tests.robot
 ```
-> **Note**  
-> You can add `--include verilator` or `--include questa` arguments to run tests for only one simulator.
 
 #### Windows
 

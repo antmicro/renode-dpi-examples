@@ -45,18 +45,15 @@ Get Connection Plus Args
 Run VCS
     [Arguments]                     ${additional_arguments}
     ${arguments}=                   Combine Lists  ${VCS_ARGUMENTS}  ${additional_arguments}
-    Skip If                         ${{not os.path.exists($VCS_SIMULATION)}}  Executable not present.
-    Run Executable                  ${VCS_SIMULATION}  ${arguments}
+    Run Executable                  ${VCS_SIMULATION}  ${arguments}  True
 
 Run Verilator
     [Arguments]                     ${arguments}
-    Skip If                         ${{not os.path.exists($VERILATOR_SIMULATION)}}  Executable not present.
-    Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}
+    Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}  True
 
 Run Questa
     [Arguments]                     ${additional_arguments}
     ${user_arguments}=              Split String  ${QUESTA_USER_ARGUMENTS}
-    Skip If                         ${{not os.path.exists($QUESTA_SIMULATION)}}  Executable not present.
     ${arguments}=                   Combine Lists  ${QUESTA_ARGUMENTS}  ${user_arguments}  ${additional_arguments}
 
     ${system}=                      Evaluate  platform.system()  modules=platform
@@ -64,18 +61,21 @@ Run Questa
         Append To List                  ${arguments}  -ldflags  -lws2_32
     END
 
-    Run Executable                  ${QUESTA_SIMULATION}  ${arguments}
+    Run Executable                  ${QUESTA_SIMULATION}  ${arguments}  True
 
 Run Executable
-    [Arguments]                     ${executable}  ${arguments}
+    [Arguments]                     ${executable}  ${arguments}  ${skip_if_missing}=False
     ${logFile}=                     Allocate Temporary File
+    Skip If                         ${{${skip_if_missing} and not os.path.exists($executable)}}  Executable ${executable} not built and not found in PATH.
     # The process standard output is redirected to the file to prevent a buffer from filling up
     Start Process                   ${executable}  @{arguments}  stdout=${logFile}
 
 Terminate And Log
-    ${result}=                      Wait For Process  timeout=5 secs  on_timeout=terminate
-    Log                             ${result.stdout}
-    IF  ${result.rc} != 0
-        Fail                            ${result.stderr}
-        Log                             RC = ${result.rc}  ERROR
+    IF  '${TEST STATUS}' != 'SKIP'
+        ${result}=                      Wait For Process  timeout=5 secs  on_timeout=terminate
+        Log                             ${result.stdout}
+        IF  ${result.rc} != 0
+            Fail                            ${result.stderr}
+            Log                             RC = ${result.rc}  ERROR
+        END
     END
