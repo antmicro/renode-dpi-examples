@@ -109,7 +109,6 @@ jobs:
         run: >
           renode-test
           ${{ env.SAMPLE_DIR}}/test*.robot
-          --include verilator
           ${{ inputs.custom_robot_args }}
 
       - name: Run tests on Windows
@@ -118,7 +117,6 @@ jobs:
         run: >
           renode-test
           (Get-ChildItem ${{ env.SAMPLE_DIR }}\test*.robot)
-          --include verilator
           --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
           ${{ inputs.custom_robot_args }}
 
