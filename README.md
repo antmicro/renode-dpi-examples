@@ -145,8 +145,8 @@ You will need to substitute placeholders in the following commands which use the
 You can use one of the following command to start the simulator and pass connection parameters:
 * `samples/axi_ram/build/verilated <ReceiverPort> <SenderPort> <Address>` for Verilator on Linux
 * `samples\axi_ram\build\verilated.exe <ReceiverPort> <SenderPort> <Address>` for Verilator on Windows
-* `vsim design_optimized -work samples/axi_ram/build/work_questa -do "run -all" -GReceiverPort=<ReceiverPort> -GSenderPort=<SenderPort> -GAddress=\"<Address>\"` for Questa on Linux
-* ``vsim design_optimized -work samples\axi_ram\build\work_questa -do "run -all" -GReceiverPort=<ReceiverPort> -GSenderPort=<SenderPort> -GAddress=\`"<Address>\`" -ldflags -lws2_32`` in Powershell for Questa on Windows
+* `vsim design_optimized -work samples/axi_ram/build/work_questa -do "run -all" +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=\"<Address>\"` for Questa on Linux
+* ``vsim design_optimized -work samples\axi_ram\build\work_questa -do "run -all" +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=\`"<Address>\`" -ldflags -lws2_32`` in Powershell for Questa on Windows
 
 After starting the simulator establish a connection by executing the `mem Connect` command in the Renode Monitor.
 No output indicates that Renode and the simulator are successfully connected.
