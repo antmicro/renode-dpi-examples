@@ -98,7 +98,7 @@ endif()
 
 # Prepare list of Renode DPI Integration files
 set(RENODE_HDL_LIBRARY ${COLIB_DIR}/hdl)
-set(RENODE_HDL_INCLUDE_DIRS ${RENODE_HDL_LIBRARY})
+set(RENODE_HDL_INCLUDE_DIRS ${RENODE_HDL_LIBRARY}/includes)
 
 file(GLOB RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/imports/*.sv)
 list(PREPEND RENODE_HDL_SOURCES ${RENODE_HDL_LIBRARY}/renode_pkg.sv)
