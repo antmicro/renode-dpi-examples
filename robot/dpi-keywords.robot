@@ -23,7 +23,7 @@ Should Connect To Simulation And Reset Peripheral
     Run Keyword                     ${create_machine_keyword}
     Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
 
-    Wait For Log Entry              ${peripheral}: Connected
+    Wait For Log Entry              Connected to the cosimulated peripheral!
     Execute Command                 ${peripheral} Reset
 
 Connect To Simulation
