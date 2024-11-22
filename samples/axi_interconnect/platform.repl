@@ -1,0 +1,28 @@
+// CoSimulatedPeripherals function like simple memories with GPIO signals added for illustrative purposes
+
+peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x100000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    numberOfOutputGPIOs: 3
+    outputGPIOOffset: 0
+    0 -> led0@0
+    1 -> led1@0
+    2 -> led2@0
+
+peripheral1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x300000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    numberOfOutputGPIOs: 2
+    outputGPIOOffset: 3
+    0 -> led3@0
+    1 -> led4@0
+
+// Pressing and releasing the button causes LEDs to light up in turn
+button: Miscellaneous.Button @ sysbus
+    -> peripheral0@0
+
+led0: Miscellaneous.LED @ sysbus
+led1: Miscellaneous.LED @ sysbus
+led2: Miscellaneous.LED @ sysbus
+led3: Miscellaneous.LED @ sysbus
+led4: Miscellaneous.LED @ sysbus

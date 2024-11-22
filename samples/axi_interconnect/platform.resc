@@ -1,0 +1,12 @@
+using sysbus
+mach create "my-machine"
+logLevel -1
+
+machine LoadPlatformDescription $ORIGIN/platform.repl
+sysbus LogPeripheralAccess peripheral0
+sysbus LogPeripheralAccess peripheral1
+
+emulation ConnectToCoSimulation "my-machine" "my_connection" address="127.0.0.1" limitBuffer=1000000 timeout=10000
+connector Connect peripheral0 host.my_connection
+connector Connect peripheral1 host.my_connection
+
