@@ -3,8 +3,7 @@
 peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x100000, +0x100000>
     useAbsoluteAddress: true
     createConnection: false
-    numberOfOutputGPIOs: 3
-    outputGPIOOffset: 0
+    cosimToRenodeSignalRange: <0, +3>
     0 -> led0@0
     1 -> led1@0
     2 -> led2@0
@@ -12,8 +11,7 @@ peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x100000, +0x100000>
 peripheral1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x300000, +0x100000>
     useAbsoluteAddress: true
     createConnection: false
-    numberOfOutputGPIOs: 2
-    outputGPIOOffset: 3
+    cosimToRenodeSignalRange: <3, +2>
     0 -> led3@0
     1 -> led4@0
 
