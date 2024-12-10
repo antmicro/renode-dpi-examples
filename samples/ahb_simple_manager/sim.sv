@@ -23,7 +23,7 @@ module sim;
 
   renode_runtime runtime = new();
   renode #(
-    .BusPeripheralsCount(1)
+    .CosimToRenodeCount(1)
   ) renode (
     .runtime(runtime),
     .clk(clk),

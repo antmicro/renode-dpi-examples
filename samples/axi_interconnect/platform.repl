@@ -4,6 +4,7 @@ peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x100000, +0x100000>
     useAbsoluteAddress: true
     createConnection: false
     cosimToRenodeSignalRange: <0, +3>
+    cosimToRenodeIndex: 0
     0 -> led0@0
     1 -> led1@0
     2 -> led2@0
@@ -12,6 +13,7 @@ peripheral1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x300000, +0x100000>
     useAbsoluteAddress: true
     createConnection: false
     cosimToRenodeSignalRange: <3, +2>
+    cosimToRenodeIndex: 1
     0 -> led3@0
     1 -> led4@0
 

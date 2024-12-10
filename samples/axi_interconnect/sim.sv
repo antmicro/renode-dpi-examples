@@ -30,7 +30,7 @@ module sim;
   renode #(
       .RenodeInputsCount(5),
       .RenodeOutputsCount(1),
-      .BusControllersCount(1)
+      .RenodeToCosimCount(1)
   ) renode (
       .runtime(runtime),
       .clk(clk),

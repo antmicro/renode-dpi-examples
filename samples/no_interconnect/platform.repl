@@ -1,0 +1,26 @@
+mem: Memory.MappedMemory @ sysbus 0x00001000
+    size: 0x3000
+
+peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x100000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 0
+    cosimToRenodeIndex: 2
+
+peripheral1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x300000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 1
+    cosimToRenodeIndex: 3
+
+ahb_subordinate0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x10000000, +0x100>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 2
+    cosimToRenodeIndex: 0
+
+ahb_subordinate1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x20000000, +0x100>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 3
+    cosimToRenodeIndex: 1

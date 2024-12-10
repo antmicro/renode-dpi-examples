@@ -9,8 +9,8 @@ $bin?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma_vmlinux-s_13611036-
 $rootfs?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma_rootfs.ext2-s_33554432-7a53506ed3e6cdaf247280ad7025ff1aa4cb98c5
 $dtb?=@https://dl.antmicro.com/projects/renode/zynq-fastvdma.dtb-s_12284-4f3a630a9bce9e0984151b95e9efa581ef7525bf
 
-$hdl_simulation_linux?=@https://dl.antmicro.com/projects/renode/renode-dpi-axi_fastvdma-verilated-s_2198472-214cbf7bc6d0bec2845f6b1c1bf9a66e6bbf3fd0
-$hdl_simulation_windows?=@https://dl.antmicro.com/projects/renode/renode-dpi-axi_fastvdma-verilated.exe-s_4639440-4529c753cc329e0608ad953660983133253aae58
+$hdl_simulation_linux?=@https://dl.antmicro.com/projects/renode/Vfastvdma-Linux-x86_64-12746432362-s_1632096-8dff91a71b3d3f9a26ee98086a64a490b334cda1
+$hdl_simulation_windows?=@https://dl.antmicro.com/projects/renode/Vfastvdma-Windows-x86_64-12746432362.exe-s_3243873-4fe10ea4e863a62058169fd2164b66c93ef409f6
 
 machine LoadPlatformDescription $ORIGIN/platform.repl
 sysbus Redirect 0xC0000000 0x0 0x10000000
