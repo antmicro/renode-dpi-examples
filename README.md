@@ -7,7 +7,7 @@ Example integration between [Renode](https://renode.io/) and a Verilog model usi
 All samples are intended to work in both [Verilator](https://www.veripool.org/verilator/) and [Questa](https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/questa-edition.html) simulators. This repository contains a CI configured to build and run samples in Verilator. Looking at [the CI configuration](/.github/workflows/dpi-examples.yml) is a good way to reproduce an example, but you can follow the instructions below, especially if you use Questa.
 
 ## Architecture
-Renode communicates with the simulator over TCP using a dedicated protocol. The library which implements this protocol can be found in [Renode sources](https://github.com/renode/renode/tree/master/src/Plugins/VerilatorPlugin). It's mainly written in C++, but there is an additional wrapper written in SystemVerilog, which uses DPI calls to interact with the API written in C++.
+Renode communicates with the simulator over TCP using a dedicated protocol. The library which implements this protocol can be found in [Renode sources](https://github.com/renode/renode/tree/master/src/Plugins/CoSimulationPlugin). It's mainly written in C++, but there is an additional wrapper written in SystemVerilog, which uses DPI calls to interact with the API written in C++.
 
 The HDL top simulation file contains Renode related snippets:
 * code initializing a connection (with ports and IP address passed from parameters of a module)
