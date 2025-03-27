@@ -15,6 +15,9 @@ on:
       custom_robot_args:
         required: false
         type: string
+      artifact_suffix:
+        required: false
+        type: string
 
       runner:
         required: true
@@ -42,6 +45,7 @@ jobs:
 
     env:
       SAMPLE_NAME: ${{ inputs.sample }}
+      ARTIFACT_SUFFIX: ${{ inputs.artifact_suffix }}
       SAMPLE_DIR: ${{ github.workspace }}/samples/${{ inputs.sample }}
       ARTIFACTS_DIR_NAME: artifacts
       CC: ${{ inputs.runner == 'ubuntu-20.04' && 'gcc-10' || 'gcc' }}
@@ -57,7 +61,7 @@ jobs:
           python-version: ${{ env.PY_PYTHON3 }}
       
       - name: Download the Verilator artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.verilator_artifact }}
           path: ${{ github.workspace }}
@@ -77,7 +81,7 @@ jobs:
       
       - name: Download a custom build of a sample
         if: ${{ inputs.custom_artifact }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.SAMPLE_NAME }}
           path: ${{ env.SAMPLE_DIR }}
@@ -137,8 +141,8 @@ jobs:
           ls -r .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}-${{ runner.os }}-${{ runner.arch }}
+          name: ${{ env.ARTIFACTS_PREFIX }}${{ env.SAMPLE_NAME }}${{ env.ARTIFACT_SUFFIX }}-${{ runner.os }}-${{ runner.arch }}
           path: ${{ env.ARTIFACTS_DIR_NAME }}/*
