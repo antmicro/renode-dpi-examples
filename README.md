@@ -177,3 +177,5 @@ It will also finish the HDL simulation.
 |                 [APB3 Completer Memory](/samples/apb3_completer_mem/apb3_completer_mem.sv)                  |                  *APB3 Completer*                   |
 |            [APB3 Requester Synthesizable](/samples/apb3_requester_synth/apb3_requester_synth.sv)            |                  *APB3 Requester*                   |
 |                        [APB3 Standalone Simulation](/samples/apb3_standalone/sim.sv)                        | *APB3 Requester, APB3 Completer, without DPI usage* |
+|                        [AXI interconnect](samples/axi_interconnect/sim.sv)                                  | *Two AXI memories connected to Renode through an AXI interconnect* |
+|                        [No interconnect](/samples/no_interconnect/sim.sv)                                   | *Two AXI managers and two AHB subordinates connected directly to Renode* |
