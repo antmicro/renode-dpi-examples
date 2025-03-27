@@ -119,7 +119,7 @@ jobs:
           rm config_base.json
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.CUSTOM_SAMPLE_NAME }}
           path: ${{ env.CUSTOM_SAMPLE_DIR }}
@@ -135,15 +135,19 @@ jobs:
           - directory_name: axi_ram
             custom_cmake_args: -DAXI_DATA_WIDTH=64
             custom_robot_args: --variable=BUS_WIDTH:64
+            artifact_suffix: 64
           - directory_name: axi_ram
             custom_cmake_args: -DAXI_DATA_WIDTH=32
             custom_robot_args: --variable=BUS_WIDTH:32
+            artifact_suffix: 32
           - directory_name: axi_ram
             custom_cmake_args: -DAXI_DATA_WIDTH=16
             custom_robot_args: --variable=BUS_WIDTH:16
+            artifact_suffix: 16
           - directory_name: axi_ram
             custom_cmake_args: -DAXI_DATA_WIDTH=8
             custom_robot_args: --variable=BUS_WIDTH:8
+            artifact_suffix: 8
           - directory_name: axi_fastvdma
           - directory_name: axi_fastvdma-64
             custom_artifact: true
@@ -180,6 +184,7 @@ jobs:
       custom_artifact: ${{ matrix.sample.custom_artifact || false }}
       custom_cmake_args: ${{ matrix.sample.custom_cmake_args || '' }}
       custom_robot_args: ${{ matrix.sample.custom_robot_args || '' }}
+      artifact_suffix: ${{ matrix.sample.artifact_suffix || '' }}
 
       runner: ${{ matrix.config.runner }}
       verilator_artifact: ${{ matrix.config.verilator_artifact }}
