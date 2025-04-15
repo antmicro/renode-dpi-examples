@@ -4,8 +4,8 @@ dma: CoSimulated.CoSimulatedPeripheral @ sysbus <0x43c20000, +0x100>
     maxWidth: 32
     // Changing frequency to a non-default value breaks timings in a trace.
     // But it improves a performance of Linux simulation.
-    frequency: 1000000
-    limitBuffer: 1000
+    tickFrequency: 1000000
+    timesyncPeriod: "1ms"
     timeout: 20000
     cosimToRenodeSignalRange: <0, +2>
     address: "127.0.0.1"

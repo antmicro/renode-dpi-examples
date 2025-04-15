@@ -2,6 +2,6 @@ mem: CoSimulated.CoSimulatedPeripheral @ sysbus <0x20000000, +0x100000>
     // NOTE: Bus is 32-bit; this is set to 64 bit to test the behavior
     // of invalid 64-bit access on HDL level
     maxWidth: 64
-    limitBuffer: 1000000
+    timesyncPeriod: "1ms"
     timeout: 10000
     address: "127.0.0.1"

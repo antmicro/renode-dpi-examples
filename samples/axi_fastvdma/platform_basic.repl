@@ -1,6 +1,6 @@
 dma: CoSimulated.CoSimulatedPeripheral @ sysbus <0x10000000, +0x100>
     maxWidth: 32
-    limitBuffer: 1000000
+    timesyncPeriod: "1ms"
     timeout: 5000
     cosimToRenodeSignalRange: <0, +2>
     address: "127.0.0.1"
