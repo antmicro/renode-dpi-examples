@@ -64,7 +64,7 @@ You can find it in a specific run listed on [the Actions page](https://github.co
 #### Linux (Ubuntu)
 Use command below to build Verilator.
 ```bash
-sudo apt-get update && sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlibc zlib1g zlib1g-dev
+sudo apt-get update && sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g zlib1g-dev
 git clone https://github.com/verilator/verilator.git
 cd verilator
 git checkout v5.018

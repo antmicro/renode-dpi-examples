@@ -48,12 +48,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: >
           sudo apt update 
-          && sudo apt install
-          git help2man perl python3 make autoconf g++ flex bison ccache
-          libgoogle-perftools-dev numactl perl-doc
-          libfl2
-          libfl-dev
-          zlibc zlib1g zlib1g-dev
+          && sudo apt install git help2man perl python3 make autoconf g++ flex bison ccache libunwind-dev libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g zlib1g-dev
 
       - name: Install dependencies on Windows
         uses: msys2/setup-msys2@v2

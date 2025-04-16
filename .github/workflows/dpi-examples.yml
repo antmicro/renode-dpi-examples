@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - runner: ubuntu-20.04
+          - runner: ubuntu-22.04
           - runner: windows-latest
     runs-on: ${{ matrix.config.runner }}
     defaults:
@@ -50,7 +50,7 @@ jobs:
   build-verilator-linux:
     uses: ./.github/workflows/build-verilator.yml
     with:
-      runner: ubuntu-20.04
+      runner: ubuntu-22.04
       # After changing Verilator version, the project README.md should also be updated.
       verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
   build-verilator-windows:
@@ -173,7 +173,7 @@ jobs:
           - directory_name: ahb_simple_manager
           - directory_name: gpio_repeater
         config:
-          - runner: ubuntu-20.04
+          - runner: ubuntu-22.04
             verilator_artifact: ${{ needs.build-verilator-linux.outputs.verilator_artifact }}
           - runner: windows-latest
             verilator_artifact: ${{ needs.build-verilator-windows.outputs.verilator_artifact }}
