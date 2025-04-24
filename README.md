@@ -1,15 +1,17 @@
 # renode-dpi-examples
 
-Copyright (c) 2023 [Antmicro](https://www.antmicro.com)
+Copyright (c) 2023-2025 [Antmicro](https://www.antmicro.com)
 
 Example integration between [Renode](https://renode.io/) and a Verilog model using DPI (SystemVerilog Direct Programming Interface) calls.
 
 All samples are intended to work in both [Verilator](https://www.veripool.org/verilator/) and [Questa](https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/questa-edition.html) simulators. This repository contains a CI configured to build and run samples in Verilator. Looking at [the CI configuration](/.github/workflows/dpi-examples.yml) is a good way to reproduce an example, but you can follow the instructions below, especially if you use Questa.
 
 ## Architecture
+
 Renode communicates with the simulator over TCP using a dedicated protocol. The library which implements this protocol can be found in [Renode sources](https://github.com/renode/renode/tree/master/src/Plugins/CoSimulationPlugin). It's mainly written in C++, but there is an additional wrapper written in SystemVerilog, which uses DPI calls to interact with the API written in C++.
 
 The HDL top simulation file contains Renode related snippets:
+
 * code initializing a connection (with ports and IP address passed from parameters of a module)
 * code creating modules and interfaces of busses
 * code resetting a bus
@@ -18,13 +20,18 @@ The HDL top simulation file contains Renode related snippets:
 > **Note**  
 > The code intentionally blocks the elapse of the simulation time while waiting for a message.
 
-## Usage of prebuilt example
+## Usage of the prebuilt example
 
 ### Preparing Renode
-The rest of this instruction assumes you have Renode in the `renode` directory inside this repository. You just need to download and extract it, and install dependencies for the Robot test framework. Follow the steps below.
+
+The rest of this instruction assumes you have Renode in the `renode` directory inside this repository.
+You just need to download and extract it, and install dependencies for the Robot test framework.
+Follow the steps below.
 
 #### Linux
-Run commands
+
+Run the following commands:
+
 ```bash
 wget --progress=dot:giga https://builds.renode.io/renode-latest.linux-portable.tar.gz
 mkdir renode
@@ -33,23 +40,28 @@ python3 -m pip install -r renode/tests/requirements.txt
 ```
 
 #### Windows
+
 * Download [the Renode nightly package](https://builds.renode.io/renode-latest.zip)
 * Extract it to the `renode` directory
 * Run `python -m pip install -r renode/tests/requirements.txt`
 
 ### Running Linux on Zynq-7000 with verilated FastVDMA 
+
 Run one of the commands below. It will start Renode and show two windows:
+
 * Monitor which can be used to manage a simulation
 * UART analyzer with terminal for interaction with Linux on Zynq-7000
 
 This sample uses a prebuilt executable of a verilated [FastVDMA controller](https://github.com/antmicro/fastvdma). You can build the executable by yourself from [the sample directory](samples/axi_fastvdma/).
 
 #### Linux
+
 ```bash
 renode/renode -e start samples/axi_fastvdma_prebuilt/platform.resc
 ```
 
 #### Windows
+
 ```cmd
 renode\bin\Renode.exe -e start samples\axi_fastvdma_prebuilt\platform.resc
 ```
@@ -57,12 +69,15 @@ renode\bin\Renode.exe -e start samples\axi_fastvdma_prebuilt\platform.resc
 ## Manual compilation
 
 ### Building Verilator
+
 For simplicity, build Verilator in the `verilator` directory inside this repository to use unmodified commands from this README.  
 Instead of building Verilator from source you can download the artifacts with Verilator, which is built on the CI.
 You can find it in a specific run listed on [the Actions page](https://github.com/antmicro/renode-dpi-examples/actions?query=branch%3Amain).
 
 #### Linux (Ubuntu)
-Use command below to build Verilator.
+
+Use the following command to build Verilator:
+
 ```bash
 sudo apt-get update && sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g zlib1g-dev
 git clone https://github.com/verilator/verilator.git
@@ -74,11 +89,13 @@ make -j `nproc`
 ```
 
 ### Preparing Renode
-You can find an instruction on preparing Renode in [the previous section](/#preparing-renode).
+
+You can find instructions on preparing Renode in [the previous section](/#preparing-renode).
 
 ### Building a sample
 
 #### Linux
+
 Run in `samples/axi_ram`
 ```bash
 mkdir build
@@ -92,13 +109,15 @@ make
 > You may use a path to installed packages in both approaches i.e. `export RENODE_ROOT=/opt/renode` or `-DUSER_RENODE_DIR=/opt/renode`
 
 #### Windows
+
 To build a sample on Windows you need the dependencies listed below:
 * `mingw32-make.exe`
 * [CMake](https://cmake.org/download/)
 
 A lot of MinGW toolchains contain required tools. The one of approaches is to download [the WinLibs archive](https://www.mingw-w64.org/downloads/#winlibscom), extract it and add to the PATH enviromental variable.
 
-Run in CMD in `samples/axi_ram`
+Run in CMD in `samples/axi_ram`:
+
 ```cmd
 mkdir build
 cd build
@@ -107,11 +126,14 @@ mingw32-make.exe
 ```
 
 ## Testing
-There are tests for Verilator, Questa and VCS. If the cosimulation block executable is not found for some of them, the corresponding tests will be skipped.
+
+There are tests for Verilator, Questa and VCS.
+If the cosimulation block executable is not found for some of them, the corresponding tests will be skipped.
 
 To run tests, do the following from the repository root:
 
 #### Linux
+
 ```bash
 renode/renode-test samples/axi_ram/tests.robot
 ```
@@ -123,17 +145,21 @@ renode\bin\renode-test.bat samples\axi_ram\tests.robot --variable=VERILATED_BINA
 ```
 
 ## Running a sample manually
-Instead of run an automatic test using the Robot Framework, you can manually run Renode and an external simulator.  
+
+Instead of running an automatic test using the Robot Framework, you can manually run Renode and an external simulator.  
 
 ### Starting Renode
+
 To run Renode with the [RESC script](https://renode.readthedocs.io/en/latest/basic/monitor-syntax.html#renode-script-syntax), which creates a platform, just execute one of the following commands in the repository root:
+
 * `renode/renode samples/axi_ram/platform.resc` on Linux 
 * `renode\bin\Renode.exe samples\axi_ram\platform.resc` on Windows
 
-Renode communicates with a simulator over sockets and you will need communication parameters.
+Renode communicates with other simulators over sockets and you will need to provide communication parameters.
 Run the `mem ConnectionParameters` command in [the Monitor](https://renode.readthedocs.io/en/latest/basic/monitor-syntax.html).
 
 The output of the command consists of:
+
 * the receiver port (later referenced to as `<ReceiverPort>`),
 * the sender port (later referenced to as `<SenderPort>`),
 * the IP address (later referenced to as `<Address>`).  
@@ -143,12 +169,13 @@ You will need to substitute placeholders in the following commands which use the
 ### Connecting to a simulator
                                          
 You can use one of the following command to start the simulator and pass connection parameters:
+
 * `samples/axi_ram/build/verilated +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=<Address>` for Verilator on Linux
 * `samples\axi_ram\build\verilated.exe +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=<Address>` for Verilator on Windows
 * `vsim design_optimized -work samples/axi_ram/build/work_questa -do "run -all" +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=\"<Address>\"` for Questa on Linux
 * ``vsim design_optimized -work samples\axi_ram\build\work_questa -do "run -all" +RENODE_RECEIVER_PORT=<ReceiverPort> +RENODE_SENDER_PORT=<SenderPort> +RENODE_ADDRESS=\`"<Address>\`" -ldflags -lws2_32`` in Powershell for Questa on Windows
 
-After starting the simulator establish a connection by executing the `mem Connect` command in the Renode Monitor.
+After starting the simulator, establish a connection by executing the `mem Connect` command in the Renode Monitor.
 No output indicates that Renode and the simulator are successfully connected.
 
 > **Note**  
@@ -156,14 +183,16 @@ No output indicates that Renode and the simulator are successfully connected.
 > Instead of passing the `-do "run -all"` argument to Questa you may execute the `run -all` command in the transcript window.
 
 ### Interacting with the design
-You can simply try the prepared setup by running the following commands in the Renode.
+
+You can simply try the prepared setup by running the following commands in the Renode Monitor:
+
 ```
 mem WriteDoubleWord 0x10 0x12345678
 mem ReadDoubleWord 0x10
 ```
 
 You can close the simulation by calling the `quit` command in the Renode Monitor.
-It will also finish the HDL simulation.
+This will also stop the HDL simulation.
 
 ## Samples list
 
