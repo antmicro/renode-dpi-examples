@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: antmicro/renode-test-action@v4
+      - uses: antmicro/renode-test-action@v5.0.0
         with:
           renode-repository: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
           renode-revision: ${{ inputs.renode_git_ref || 'master' }}
