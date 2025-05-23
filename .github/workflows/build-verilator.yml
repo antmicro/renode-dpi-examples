@@ -83,6 +83,8 @@ jobs:
           ./configure --prefix $PWD/$BUILD_DIR_NAME
           make -j `nproc`
           make install
+          ls -Rl $PWD/$BUILD_DIR_NAME
+          ldd $PWD/$BUILD_DIR_NAME/bin/verilator_bin.exe
           ccache -s
       
       - id: prepare-artifacts
