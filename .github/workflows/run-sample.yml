@@ -114,6 +114,7 @@ jobs:
           renode-test
           ${{ env.SAMPLE_DIR}}/test*.robot
           ${{ inputs.custom_robot_args }}
+          --variable=SKIP_VERILATOR_IF_MISSING:False
 
       - name: Run tests on Windows
         if: ${{ runner.os == 'Windows' }}
@@ -121,8 +122,9 @@ jobs:
         run: >
           renode-test
           (Get-ChildItem ${{ env.SAMPLE_DIR }}\test*.robot)
-          --variable=VERILATED_BINARY:${{ env.SAMPLE_DIR }}\build\verilated.exe
+          --variable=VERILATOR_SIMULATION:${{ env.SAMPLE_DIR }}\build\verilated.exe
           ${{ inputs.custom_robot_args }}
+          --variable=SKIP_VERILATOR_IF_MISSING:False
 
       - name: Copy the output of test
         if: always()

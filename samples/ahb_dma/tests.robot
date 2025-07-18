@@ -94,6 +94,7 @@ Test DMA
 
 Should Run DMA
     [Arguments]                     ${peripheral}  ${run_simulation_keyword}
+    Create Log Tester               0
     Create Machine
     Connect To Simulation           ${peripheral}  ${run_simulation_keyword}
 

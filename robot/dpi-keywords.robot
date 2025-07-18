@@ -1,6 +1,10 @@
 *** Variables ***
 ${BUILD_DIRECTORY}                  ./build
 
+${SKIP_VERILATOR_IF_MISSING}        True
+${SKIP_VCS_IF_MISSING}              True
+${SKIP_QUESTA_IF_MISSING}           True
+
 ${VERILATOR_SIMULATION}             ${BUILD_DIRECTORY}/verilated
 
 ${VCS_SIMULATION}                   ${BUILD_DIRECTORY}/simv
@@ -45,11 +49,11 @@ Get Connection Plus Args
 Run VCS
     [Arguments]                     ${additional_arguments}
     ${arguments}=                   Combine Lists  ${VCS_ARGUMENTS}  ${additional_arguments}
-    Run Executable                  ${VCS_SIMULATION}  ${arguments}  True
+    Run Executable                  ${VCS_SIMULATION}  ${arguments}  ${SKIP_VCS_IF_MISSING}
 
 Run Verilator
     [Arguments]                     ${arguments}
-    Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}  True
+    Run Executable                  ${VERILATOR_SIMULATION}  ${arguments}  ${SKIP_VERILATOR_IF_MISSING}
 
 Run Questa
     [Arguments]                     ${additional_arguments}
@@ -61,7 +65,7 @@ Run Questa
         Append To List                  ${arguments}  -ldflags  -lws2_32
     END
 
-    Run Executable                  ${QUESTA_SIMULATION}  ${arguments}  True
+    Run Executable                  ${QUESTA_SIMULATION}  ${arguments}  ${SKIP_QUESTA_IF_MISSING}
 
 Run Executable
     [Arguments]                     ${executable}  ${arguments}  ${skip_if_missing}=False

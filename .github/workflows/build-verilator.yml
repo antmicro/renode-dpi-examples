@@ -84,7 +84,12 @@ jobs:
           make -j `nproc`
           make install
           ccache -s
-      
+
+      - name: Fix missing MinGW DLL on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          cp /mingw64/bin/libwinpthread-1.dll ${{ env.BUILD_DIR_NAME }}/bin
+
       - id: prepare-artifacts
         name: Prepare artifacts
         run: |

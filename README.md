@@ -141,7 +141,7 @@ renode/renode-test samples/axi_ram/tests.robot
 #### Windows
 
 ```cmd
-renode\bin\renode-test.bat samples\axi_ram\tests.robot --variable=VERILATED_BINARY:samples\axi_ram\build\verilated.exe
+renode\bin\renode-test.bat samples\axi_ram\tests.robot --variable=VERILATOR_SIMULATION:samples\axi_ram\build\verilated.exe
 ```
 
 ## Running a sample manually
