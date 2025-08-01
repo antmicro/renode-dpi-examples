@@ -70,7 +70,7 @@ jobs:
         run: tar -xf verilator.tar
 
       - name: Build Renode
-        uses: antmicro/renode-test-action@v4
+        uses: antmicro/renode-test-action@v5
         with:
           renode-repository: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
           renode-revision: ${{ inputs.renode_git_ref || 'master' }}
