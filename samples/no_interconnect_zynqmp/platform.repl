@@ -1,0 +1,41 @@
+using "platforms/boards/zynqmp-zcu104.repl"
+
+// renodeToCosim and cosimToRenode indices above 100 are not used in this scenario, but must still be unique
+
+// FastVDMA, demonstrates: AXI reads and writes, interrupts
+dma: CoSimulated.CoSimulatedPeripheral @ sysbus <0x80000000, +0x100>
+    createConnection: false
+    renodeToCosimIndex: 0
+    cosimToRenodeIndex: 0
+    cosimToRenodeSignalRange: <0, +2>
+    [0-1] -> apuGic@[65-66]
+
+// Auxiliary buffer on Renode side, target for writes (Cosim->Renode)
+mem: Memory.MappedMemory @ sysbus 0x80001000
+    size: 0x3000
+
+// RAM on Cosim side, demonstrates AXI reads and writes
+peripheral0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x80100000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 1
+    cosimToRenodeIndex: 101
+
+// Another RAM, also used as a source for DMA transfers
+peripheral1: CoSimulated.CoSimulatedPeripheral @ sysbus <0x80300000, +0x100000>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 2
+    cosimToRenodeIndex: 102
+
+// AHB peripheral, demonstrates writes (Cosim->Renode)
+ahb_subordinate0: CoSimulated.CoSimulatedPeripheral @ sysbus <0x90000000, +0x100>
+    useAbsoluteAddress: true
+    createConnection: false
+    renodeToCosimIndex: 101
+    cosimToRenodeIndex: 1
+
+// Stop apu0, we don't have any code for it
+apu0:
+    init:
+        IsHalted true
