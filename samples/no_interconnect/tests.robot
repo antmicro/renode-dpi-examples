@@ -18,6 +18,7 @@ ${TEST_DATA_PERIPHERAL1}            AA11BB22CC33DD44EE55FF6600771188
 ${RW_ADDRESS}                       0x110
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
+${BUILD_DIRECTORY}                  ${CURDIR}/build
 ${CONNECTION}                       host.my_connection
 
 

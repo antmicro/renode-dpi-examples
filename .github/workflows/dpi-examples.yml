@@ -172,6 +172,8 @@ jobs:
           - directory_name: ahb_dma
           - directory_name: ahb_simple_manager
           - directory_name: gpio_repeater
+          - directory_name: no_interconnect
+          - directory_name: no_interconnect_zynqmp
         config:
           - runner: ubuntu-22.04
             verilator_artifact: ${{ needs.build-verilator-linux.outputs.verilator_artifact }}
