@@ -26,13 +26,15 @@ endmodule
 
 module sim;
   parameter int ClockPeriod = 100;
+  parameter int RenodeToCosimCount = 0;
+  parameter int CosimToRenodeCount = 0;
 
   logic clk = 1;
 
   logic [1:0] renode_inputs;
   logic [1:0] renode_outputs;
 
-  renode_runtime runtime = new();
+  renode_runtime runtime = new(RenodeToCosimCount, CosimToRenodeCount);
   renode #(
     .RenodeInputsCount(2),
     .RenodeOutputsCount(2)

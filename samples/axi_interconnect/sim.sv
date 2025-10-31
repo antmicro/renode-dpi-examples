@@ -20,17 +20,19 @@ import renode_pkg::renode_runtime;
 module sim;
   parameter int unsigned AXIDataWidth = 64;
   parameter int ClockPeriod = 100;
+  parameter int RenodeToCosimCount = 1;
+  parameter int CosimToRenodeCount = 0;
 
   logic clk = 1;
 
   logic [4:0] interrupts;
   logic trigger;
 
-  renode_runtime runtime = new();
+  renode_runtime runtime = new(RenodeToCosimCount, CosimToRenodeCount);
   renode #(
       .RenodeInputsCount(5),
       .RenodeOutputsCount(1),
-      .RenodeToCosimCount(1)
+      .RenodeToCosimCount(RenodeToCosimCount)
   ) renode (
       .runtime(runtime),
       .clk(clk),

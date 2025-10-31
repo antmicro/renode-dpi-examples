@@ -19,6 +19,8 @@ import renode_pkg::renode_runtime;
 
 module sim;
   parameter int ClockPeriod = 100;
+  parameter int RenodeToCosimCount = 0;
+  parameter int CosimToRenodeCount = 1;
 
   parameter int APB3BusAddressWidth = 32;
   parameter int APB3BusDataWidth = 32;
@@ -26,9 +28,9 @@ module sim;
   logic clk = 1;
   always #(ClockPeriod / 2) clk = ~clk;
 
-  renode_runtime runtime = new();
+  renode_runtime runtime = new(RenodeToCosimCount, CosimToRenodeCount);
   renode #(
-      .CosimToRenodeCount(1)
+      .CosimToRenodeCount(CosimToRenodeCount)
   ) renode (
       .runtime(runtime),
       .clk(clk),
