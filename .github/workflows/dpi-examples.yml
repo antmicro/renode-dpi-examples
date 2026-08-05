@@ -149,6 +149,7 @@ jobs:
             custom_robot_args: --variable=BUS_WIDTH:8
             artifact_suffix: 8
           - directory_name: axi_fastvdma
+          - directory_name: axi_fastvdma_non_blocking
           - directory_name: axi_fastvdma-64
             custom_artifact: true
             custom_cmake_args: -DAXI_DATA_WIDTH=64

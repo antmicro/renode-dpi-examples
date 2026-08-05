@@ -200,6 +200,7 @@ This will also stop the HDL simulation.
 | :---------------------------------------------------------------------------------------------------------: | :-------------------------------------------------: |
 |                                    [AXI RAM](/samples/axi_ram/axi_ram.v)                                    |                 *AXI4 Subordinate*                  |
 | [DMATop](/samples/axi_fastvdma/DMATop.v) ([the FastVDMA controller](https://github.com/antmicro/fastvdma))  |     *AXI4-Lite Subordinate, AXI4 Manager, GPIO*     |
+| Non-blocking interraction between Renode and [DMATop](/samples/axi_fastvdma_non_blocking/DMATop.v)          |     *AXI4-Lite Subordinate, AXI4 Manager, GPIO*     |
 |                                   [AHB Memory](/samples/ahb_mem/mem_ahb.v)                                  |                 *AHB Subordinate*                   |
 |                                 [Simple AHB DMA](/samples/ahb_dma/dma_ahb_simple.v)                         |       *AHB Subordinate, AHB Manager, GPIO*          |
 |                                 [Simple AHB Manager](/samples/ahb_simple_manager/ahb_manager_synth.sv)      |                   *AHB Manager*                     |
