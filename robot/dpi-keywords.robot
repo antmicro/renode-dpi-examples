@@ -69,15 +69,19 @@ Run Questa
 
 Run Executable
     [Arguments]                     ${executable}  ${arguments}  ${skip_if_missing}=False
-    ${logFile}=                     Allocate Temporary File
-    Skip If                         ${{${skip_if_missing} and not os.path.exists($executable)}}  Executable "${executable}" not found.
+
+    ${test_name}=                   Get Sanitized Test Name
+    ${logFile}=                     Set Variable  ${RESULTS_DIRECTORY}${test_name}.hdl-simulation.log
+
+    Skip If                         ${{${skip_if_missing} and not os.path.exists($executable) and not shutil.which($executable)}}  Executable "${executable}" not found.
     # The process standard output is redirected to the file to prevent a buffer from filling up
     Start Process                   ${executable}  @{arguments}  stdout=${logFile}
 
 Terminate And Log
     IF  '${TEST STATUS}' != 'SKIP'
         ${result}=                      Wait For Process  timeout=5 secs  on_timeout=terminate
-        Log                             ${result.stdout}
+
+        Log To Console                  HDL simulation log saved to "${result.stdout_path}"
         IF  ${result.rc} != 0
             Fail                            ${result.stderr}
             Log                             RC = ${result.rc}  ERROR

@@ -133,6 +133,7 @@ jobs:
           mv report.html ${{ env.ARTIFACTS_DIR_NAME }}/ || true
           mv robot_output.xml ${{ env.ARTIFACTS_DIR_NAME }}/ || true
           mv logs ${{ env.ARTIFACTS_DIR_NAME }}/ || true
+          mv *.hdl-simulation.log ${{ env.ARTIFACTS_DIR_NAME }}/ || true
           ls -r ${{ env.ARTIFACTS_DIR_NAME }} || true
 
       - name: Prepare artifacts
