@@ -9,7 +9,6 @@ Resource                            ${CURDIR}/../../robot/access-peripheral-keyw
 ${SUBORDINATE_PERIPHERAL}           ahb_subordinate
 
 ${PLATFORM}                         ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

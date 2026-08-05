@@ -17,7 +17,6 @@ ${ADDRESS_SOURCE}                   0x20080000
 ${ADDRESS_DESTINATION}              0x20000000
 
 ${BASIC_PLATFORM}                   ${CURDIR}/platform_basic.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

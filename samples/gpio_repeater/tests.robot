@@ -13,7 +13,6 @@ ${BUTTON_PERIPHERAL1}               sysbus.button1
 ${LED_PERIPHERAL1}                  sysbus.led1
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

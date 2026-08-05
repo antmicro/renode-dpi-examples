@@ -10,7 +10,6 @@ ${MEMORY_PERIPHERAL}                mem
 ${TEST_DATA}                        12345678CAFEBABE000000005A5A5A5A
 
 ${PLATFORM}                         ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

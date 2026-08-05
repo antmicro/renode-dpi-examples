@@ -4,9 +4,6 @@ Test Teardown                       Run Keywords
 ...                                     Terminate And Log
 Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 
-*** Variables ***
-${BUILD_DIRECTORY}                  ${CURDIR}/build
-
 *** Test Cases ***
 Should Pass Assertions In Verilator
     [Tags]                          verilator

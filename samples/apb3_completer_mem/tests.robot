@@ -11,7 +11,6 @@ ${TEST_DATA}                        12345678CAFEBABE5A5A5A5ADEADBEEF
 ${TEST_DATA_32BIT_TRUNCATED}        1234567800000000
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

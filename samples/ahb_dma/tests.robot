@@ -21,7 +21,6 @@ ${REGISTER_SOURCE}                  0x44
 ${REGISTER_DESTINATION}             0x48
 
 ${PLATFORM}                         ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 *** Keywords ***
 Create Machine

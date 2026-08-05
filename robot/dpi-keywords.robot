@@ -1,5 +1,5 @@
 *** Variables ***
-${BUILD_DIRECTORY}                  ./build
+${BUILD_DIRECTORY}                  ${{ os.path.dirname("${SUITE SOURCE}") }}/%{BUILD_DIRECTORY=build}
 
 ${SKIP_VERILATOR_IF_MISSING}        True
 ${SKIP_VCS_IF_MISSING}              True

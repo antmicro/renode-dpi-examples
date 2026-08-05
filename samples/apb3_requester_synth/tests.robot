@@ -7,7 +7,6 @@ Resource                            ${CURDIR}/../../robot/access-peripheral-keyw
 
 *** Variables ***
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 
 ${DUT}                              requester
 

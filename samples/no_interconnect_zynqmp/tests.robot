@@ -26,7 +26,6 @@ ${TEST_BYTE_DMA}                    A5
 ${TRANSACTION_LENGTH}               256
 
 ${DPI_PLATFORM}                     ${CURDIR}/platform.resc
-${BUILD_DIRECTORY}                  ${CURDIR}/build
 ${CONNECTION}                       host.my_connection
 
 

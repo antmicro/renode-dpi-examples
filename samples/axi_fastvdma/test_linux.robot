@@ -5,8 +5,6 @@ Test Teardown                       Run Keywords
 Resource                            ${CURDIR}/../../robot/dpi-keywords.robot
 
 *** Variables ***
-${BUILD_DIRECTORY}                  ${CURDIR}/build
-
 ${DMA_PERIHPERAL}                   dma
 ${LINUX_PLATFORM}                   ${CURDIR}/platform_linux.resc
 ${LINUX_PROMPT}                     zynq>
