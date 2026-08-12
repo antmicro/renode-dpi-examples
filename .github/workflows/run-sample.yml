@@ -115,6 +115,7 @@ jobs:
           ${{ env.SAMPLE_DIR}}/test*.robot
           ${{ inputs.custom_robot_args }}
           --variable=SKIP_VERILATOR_IF_MISSING:False
+          --results-dir ${{ env.ARTIFACTS_DIR_NAME }} 
 
       - name: Run tests on Windows
         if: ${{ runner.os == 'Windows' }}
@@ -125,16 +126,7 @@ jobs:
           --variable=VERILATOR_SIMULATION:${{ env.SAMPLE_DIR }}\build\verilated.exe
           ${{ inputs.custom_robot_args }}
           --variable=SKIP_VERILATOR_IF_MISSING:False
-
-      - name: Copy the output of test
-        if: always()
-        run: |
-          mv log.html ${{ env.ARTIFACTS_DIR_NAME }}/ || true
-          mv report.html ${{ env.ARTIFACTS_DIR_NAME }}/ || true
-          mv robot_output.xml ${{ env.ARTIFACTS_DIR_NAME }}/ || true
-          mv logs ${{ env.ARTIFACTS_DIR_NAME }}/ || true
-          mv *.hdl-simulation.log ${{ env.ARTIFACTS_DIR_NAME }}/ || true
-          ls -r ${{ env.ARTIFACTS_DIR_NAME }} || true
+          --results-dir ${{ env.ARTIFACTS_DIR_NAME }} 
 
       - name: Prepare artifacts
         if: always()
