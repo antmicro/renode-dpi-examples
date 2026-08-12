@@ -82,7 +82,7 @@ module sim;
     // The receive method blocks execution of the simulation.
     // It waits until receive a message from Renode.
     renode.receive_and_handle_message();
-    if (!runtime.connection.is_connected()) $finish;
+    if (!runtime.is_connected()) $finish;
   end
 
   always #(ClockPeriod / 2) clk = ~clk;
