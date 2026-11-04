@@ -52,12 +52,12 @@ jobs:
     with:
       runner: ubuntu-22.04
       # After changing Verilator version, the project README.md should also be updated.
-      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'master' }}
   build-verilator-windows:
     uses: ./.github/workflows/build-verilator.yml
     with:
       runner: windows-latest
-      verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
+      verilator_git_ref: ${{ inputs.verilator_git_ref || 'master' }}
 
 
   build-fastvdma-sample:
