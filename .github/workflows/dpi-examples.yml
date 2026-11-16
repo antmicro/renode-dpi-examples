@@ -46,7 +46,7 @@ jobs:
 
       - name: Run Renode
         run: renode ${{ env.RENODE_ARGS }} samples/axi_fastvdma_prebuilt/platform.resc
-    
+
   build-verilator-linux:
     uses: ./.github/workflows/build-verilator.yml
     with:
@@ -58,7 +58,6 @@ jobs:
     with:
       runner: windows-latest
       verilator_git_ref: ${{ inputs.verilator_git_ref || 'v5.018' }}
-
 
   build-fastvdma-sample:
     name: Build FastVDMA sample
@@ -109,13 +108,13 @@ jobs:
           make verilog CONFIG_FILE=$CONFIG_FILE
           cp DMATop*.v ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
           sed -i 's/DMATopAXI_AXIL_AXI/DMATop/' ${{ env.CUSTOM_SAMPLE_DIR }}/DMATop.v
-      
+
       - name: Clean up the custom sample dir
         run: |
           cd ${{ env.CUSTOM_SAMPLE_DIR }}
           rm *_linux.*
           rm config_base.json
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
