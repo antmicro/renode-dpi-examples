@@ -62,11 +62,14 @@ module ahb_manager_synth
       Stop = 3'b100
   } state_t;
 
+
   state_t state;
+  logic [4:0] transfer_index;
 
   always @(posedge HCLK or negedge HRESETn) begin
     if (HRESETn == 0) begin
       state <= ByteRequest;
+      transfer_index = 5'b0;
       HTRANS <= Idle;
       HADDR <= 32'b0;
       HWDATA <= 32'b0;
@@ -79,24 +82,34 @@ module ahb_manager_synth
           HTRANS <= Idle;
           if (HREADY) begin
             HSIZE <= Byte8Bit;
-            HADDR <= 32'h1000;
-            HWDATA <= 32'h12;
+            HADDR <= 32'h1000 + {27'b0, transfer_index};
+            HWDATA <= 32'h12 << (transfer_index * 5'd8);
             HWRITE <= Write;
             HTRANS <= NonSequential;
             @(posedge HCLK);
-            state <= WordRequest;
+            if (transfer_index == 5'b11) begin
+              transfer_index <= 5'b0;
+              state <= WordRequest;
+            end else begin
+              transfer_index <= transfer_index + 5'b1;
+            end
           end
         end
         WordRequest: begin
           HTRANS <= Idle;
           if (HREADY) begin
             HSIZE <= HalfWord16Bit;
-            HADDR <= 32'h1004;
-            HWDATA <= 32'h3456;
+            HADDR <= 32'h1004+ {27'b0, transfer_index * 5'd2};
+            HWDATA <= 32'h3456 << (transfer_index * 5'd16);
             HWRITE <= Write;
             HTRANS <= NonSequential;
             @(posedge HCLK);
-            state <= DoubleWordRequest;
+            if (transfer_index == 5'b1) begin
+              transfer_index <= 5'b0;
+              state <= DoubleWordRequest;
+            end else begin
+              transfer_index <= transfer_index + 5'b1;
+            end
           end
         end
         DoubleWordRequest: begin

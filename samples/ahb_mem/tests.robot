@@ -19,9 +19,11 @@ Test Read And Write Memory
     ${access_types}=                Create List  DoubleWord  Word  Byte
 
     FOR  ${write_access_type}  IN  @{access_types}
-        Write To Peripheral             ${MEMORY_PERIPHERAL}  ${write_access_type}  0x0  ${TEST_DATA}  4
+        ${write_access_byte_width}=     Get Width of Access Type  ${write_access_type}
+        Write To Peripheral             ${MEMORY_PERIPHERAL}  ${write_access_type}  0x0  ${TEST_DATA}  ${write_access_byte_width}
         FOR  ${read_access_type}  IN  @{access_types}
-            Should Peripheral Contain       ${MEMORY_PERIPHERAL}  ${read_access_type}  0x0  ${TEST_DATA}  4
+            ${read_access_byte_width}=      Get Width of Access Type  ${read_access_type}
+            Should Peripheral Contain       ${MEMORY_PERIPHERAL}  ${read_access_type}  0x0  ${TEST_DATA}  ${read_access_byte_width}
         END
     END
 

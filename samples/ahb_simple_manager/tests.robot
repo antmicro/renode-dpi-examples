@@ -22,8 +22,8 @@ Should Run Subordinate
     Execute Command                 emulation RunFor "0.01"
 
 # The values below are hardcoded in the HDL model of the Manager.
-    Should Peripheral Contain       mem  Byte  0x0  12
-    Should Peripheral Contain       mem  Word  0x4  5634
+    Should Peripheral Contain       mem  DoubleWord  0x0  12121212
+    Should Peripheral Contain       mem  DoubleWord  0x4  56345634
     Should Peripheral Contain       mem  DoubleWord  0x8  DEBC9A78
 
 *** Test Cases ***
