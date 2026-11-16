@@ -96,6 +96,7 @@ jobs:
           mv ${{ env.BUILD_DIR_NAME }}/share/verilator .
           rm ${{ env.BUILD_DIR_NAME }}/bin/verilator_bin_dbg*
           mv ${{ env.BUILD_DIR_NAME }}/bin/* verilator/bin
+          cp bin/verilator verilator/bin/verilator
           tar -cvf verilator.tar verilator
           echo "VERILATOR_ARTIFACT=${{ env.VERILATOR_ARTIFACT_NAME }}" >> $GITHUB_OUTPUT
 
