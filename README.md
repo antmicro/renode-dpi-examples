@@ -1,6 +1,6 @@
 # renode-dpi-examples
 
-Copyright (c) 2023-2025 [Antmicro](https://www.antmicro.com)
+Copyright (c) 2023-2026 [Antmicro](https://www.antmicro.com)
 
 Example integration between [Renode](https://renode.io/) and a Verilog model using DPI (SystemVerilog Direct Programming Interface) calls.
 
