@@ -42,7 +42,7 @@ jobs:
       - uses: antmicro/renode-test-action@v4
         with:
           renode-repository: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
-          renode-revision: ${{ inputs.renode_git_ref || 'master' }}
+          renode-revision: ${{ inputs.renode_git_ref || '109049-ahb-byte-lane' }}
 
       - name: Run Renode
         run: renode ${{ env.RENODE_ARGS }} samples/axi_fastvdma_prebuilt/platform.resc
@@ -189,4 +189,4 @@ jobs:
       runner: ${{ matrix.config.runner }}
       verilator_artifact: ${{ matrix.config.verilator_artifact }}
       renode_git_repo: ${{ inputs.renode_git_repo || 'https://github.com/renode/renode' }}
-      renode_git_ref: ${{ inputs.renode_git_ref || 'master' }}
+      renode_git_ref: ${{ inputs.renode_git_ref || '109049-ahb-byte-lane' }}
